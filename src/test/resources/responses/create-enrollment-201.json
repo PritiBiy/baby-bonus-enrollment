@@ -1,0 +1,11 @@
+{
+  "childNric": "T240****A",
+  "parentNric": "S800****A",
+  "relationship": "FATHER",
+  "status": "ENROLLED",
+  "disbursement": {
+    "type": "CASH_GIFT",
+    "amount": 3000.00,
+    "status": "PROCESSED"
+  }
+}

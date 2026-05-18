@@ -123,6 +123,8 @@ gov.sg.mof.babybonus.enrollment
 - No business logic
 - Maps `Request` → service `Dto` — never passes raw request objects into the service
 - Maps service `Dto` → `Response` — never exposes entities or service DTOs in responses
+- `Request` and `Response` classes live in `controller/request/` and `controller/response/` — never in `domain/`
+- `Request` classes must not import from `domain/` — use `String` for fields that map to domain enums; the controller performs the mapping
 - Owns `GlobalExceptionHandler` in `controller/exception/`
 - `GlobalExceptionHandler` maps:
     - Service exceptions (`EligibilityException`, `DuplicateEnrollmentException`) → appropriate 4xx
