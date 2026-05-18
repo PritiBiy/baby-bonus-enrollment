@@ -6,9 +6,9 @@ Tasks are ordered. Start each with a failing integration test — build everythi
 
 ### Task 1 — POST /api/v1/enrollments
 
-- [ ] Write failing integration test: `POST /api/v1/enrollments` → `201`, correct response shape, NRICs masked.
-- [ ] Define `Enrollment` and `Disbursement` JPA entities
-- [ ] Write migration scripts to create `enrollments` and `disbursements` tables
+- [x] Write failing integration test: `POST /api/v1/enrollments` → `201`, correct response shape, NRICs masked.
+- [x] Define `Enrollment` and `Disbursement` JPA entities
+- [x] Write migration scripts to create `enrollments` and `disbursements` tables
 - [ ] Need to add testcontainer tests for repository layer to verify JPA mappings and migrations
 - [ ] Create `EnrollmentRepository` and `DisbursementRepository`
 - [ ] Define `IcaClient` and `IroasClient` interfaces (`external` package)

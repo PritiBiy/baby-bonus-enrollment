@@ -240,6 +240,12 @@ Refer to `SCOPE.md` for the authoritative list.
 
 ---
 
+## Completing Changes
+
+After making any code change, run `./gradlew build` to verify compilation. Only say **"done changes"** when the build is successful. Do not report a task as complete if the build fails.
+
+---
+
 ## Running the Service
 
 ```bash

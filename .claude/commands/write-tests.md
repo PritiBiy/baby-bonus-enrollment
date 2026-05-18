@@ -1,8 +1,8 @@
 # Write Tests
 
-Follow these conventions when writing any test in this project.
+**Before writing any test, read this file first.** Always refer to `.claude/commands/write-tests.md` for testing conventions in this project.
 
-Before writing any test or code, read:
+Before writing any test or code, also read:
 - `CLAUDE.md` → **Design Principles (Kent Beck)** — TDD cycle, YAGNI, simple design rules
 - `CLAUDE.md` → **Layer Rules** — which layer owns what, what each layer is allowed to depend on
 
@@ -160,6 +160,25 @@ class EnrollmentServiceTest {
 
 ---
 
+## Test Resources
+
+```
+src/main/resources/mock-data/    ← loaded by stub clients (IcaStubClient, IroasStubClient) at startup
+src/test/resources/mock-data/    ← test fixtures; used by stub client unit tests and any test that needs JSON data
+```
+
+**Rules:**
+- Stub clients (`IcaStubClient`, `IroasStubClient`) read from `src/main/resources/mock-data/` via `ClassPathResource` — they own all `ObjectMapper` / JSON parsing logic
+- Tests that need JSON data (e.g. testing the stub client itself) load from `src/test/resources/mock-data/`
+- **Never put `ObjectMapper` or JSON file parsing in a test.** If a test needs a parsed record, either construct it inline or delegate to the stub client
+- The integration test mocks `IcaClient` at the interface level and returns typed records directly — it does not read JSON files at all
+- Test resource files can diverge from production data to cover edge cases (e.g. a child with missing fields, a parent with an unusual NRIC)
+
+**When to use WireMock instead:**
+If `IcaClient` were a real HTTP client making calls to an external URL, WireMock would stub that URL and return JSON — exercising the full HTTP → deserialisation chain. That is not the design here. `MockIcaClient` *is* the ICA integration; the external boundary is the `IcaClient` interface, not a URL. Use interface-level mocking.
+
+---
+
 ## What NOT to do
 
 | Don't | Do instead |
@@ -170,6 +189,8 @@ class EnrollmentServiceTest {
 | Mock repositories in integration test | Let real H2 + repositories run |
 | Use TestContainers with H2 | Use `@DataJpaTest` — H2 is already the real DB |
 | Use `!!` in test code | Use `assertNotNull` or `requireNotNull` |
+| Put `ObjectMapper` / JSON parsing in a test | Construct records inline or let the stub client own parsing |
+| Read from `src/main/resources/mock-data/` in tests | Use `src/test/resources/mock-data/` for test fixtures |
 
 ---
 
