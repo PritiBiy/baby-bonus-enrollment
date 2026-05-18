@@ -5,7 +5,8 @@
       "Bash(./gradlew dependencies *)",
       "Bash(./gradlew bootRun)",
       "Bash(kill %1)",
-      "Bash(wait %1)"
+      "Bash(wait %1)",
+      "Bash(./gradlew test *)"
     ]
   }
 }
