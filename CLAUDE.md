@@ -28,6 +28,121 @@ Kotlin + Spring Boot service handling Baby Bonus enrollment applications. Checks
 
 ---
 
+## Package structure
+
+```
+gov.sg.mof.babybonus.enrollment
+├── BabyBonusApplication.kt
+│
+├── domain/
+│   ├── EnrollmentEntity.kt
+│   ├── DisbursementEntity.kt
+│   ├── Citizenship.kt
+│   ├── Relationship.kt
+│   ├── EnrollmentStatus.kt
+│   ├── DisbursementType.kt
+│   └── DisbursementStatus.kt
+│
+├── repository/
+│   ├── EnrollmentRepository.kt          ← interface
+│   └── DisbursementRepository.kt        ← interface
+│
+├── service/
+│   ├── EnrollmentService.kt             ← interface
+│   ├── EnrollmentServiceImpl.kt
+│   ├── dto/
+│   │   ├── CreateEnrollmentDto.kt
+│   │   └── EnrollmentDto.kt
+│   └── exception/
+│       ├── EligibilityException.kt
+│       └── DuplicateEnrollmentException.kt
+│
+├── controller/
+│   ├── EnrollmentController.kt
+│   ├── request/
+│   │   ├── EnrollmentRequest.kt
+│   │   └── IneligibleRequest.kt
+│   ├── response/
+│   │   ├── EnrollmentResponse.kt
+│   │   ├── DisbursementResponse.kt
+│   │   └── ErrorResponse.kt
+│   └── exception/
+│       └── GlobalExceptionHandler.kt
+│
+├── external/
+│   ├── ica/
+│   │   ├── IcaClient.kt                 ← interface
+│   │   ├── ChildRecord.kt
+│   │   ├── MockIcaClient.kt
+│   │   └── exception/
+│   │       └── IcaClientException.kt
+│   ├── iroas/
+│   │   ├── IroasClient.kt               ← interface
+│   │   ├── ParentRecord.kt
+│   │   ├── MockIroasClient.kt
+│   │   └── exception/
+│   │       └── IroasClientException.kt
+│   └── disbursement/
+│       ├── DisbursementClient.kt        ← interface
+│       ├── DisbursementRequest.kt
+│       ├── DisbursementResult.kt
+│       ├── MockDisbursementClient.kt
+│       └── exception/
+│           └── DisbursementClientException.kt
+│
+├── security/
+│   └── (internals TBD)
+│
+└── audit/
+└── (internals TBD)
+``` 
+
+---
+
+## Layer Rules
+
+### Domain
+- Contains JPA entities and enums only
+- No business logic, no Spring annotations beyond JPA mapping
+- Flat structure — no sub-packages for entities vs enums
+### Repository
+- Defined as interfaces extending `JpaRepository` — no implementation classes
+- Do not define custom exceptions at this layer
+- Spring `DataAccessException` subtypes bubble up; the controller layer catches unmapped ones and returns a generic 500
+### Service
+- Defined as an interface + `Impl` class
+- Owns DTOs used as the contract between controller and service — these live in `service/dto/` and are named `*Dto`
+- Controller maps `Request` → service `Dto` before calling the service
+- Service maps domain entities → `Dto` before returning to the controller
+- Owns domain exceptions in `service/exception/`
+- Catches external client exceptions and translates them to domain exceptions — never lets external exceptions propagate upward
+- Never imports anything from `controller/`
+- [PENDING]`@Transactional` belongs here on the method that owns the unit of work (Ideally this is repository concern, so it should not be in the service.Need to rethink on this.)
+### Controller
+- Handles HTTP only: parse input, map to service DTO, call service, map result to response
+- No business logic
+- Maps `Request` → service `Dto` — never passes raw request objects into the service
+- Maps service `Dto` → `Response` — never exposes entities or service DTOs in responses
+- Owns `GlobalExceptionHandler` in `controller/exception/`
+- `GlobalExceptionHandler` maps:
+    - Service exceptions (`EligibilityException`, `DuplicateEnrollmentException`) → appropriate 4xx
+    - `DataAccessException` (unmapped repository errors) → generic 500
+    - Catch-all `Exception` → generic 500, no implementation details leaked
+### External
+- Each external dependency has its own subpackage under `external/`
+- Each defines an interface with a `Mock*` implementation alongside it
+- The mock is the only implementation for this service — real HTTP clients are out of scope
+- Each subpackage owns its own exception in `external/<name>/exception/`
+- The service layer catches these exceptions and translates to domain exceptions
+- The controller layer never sees external exceptions directly
+### Security
+- Package exists; internals TBD
+- All endpoints secured by default — nothing permitted without authentication unless explicitly allowlisted
+- Swagger UI paths are allowlisted so they are accessible without a key
+### Audit
+- Called from service layer only — never from controller or repository
+- Package exists; internals TBD
+---
 ## Design Principles (Kent Beck)
 
 ### Four Rules of Simple Design — in priority order
@@ -72,7 +187,6 @@ Each commit should represent one coherent step. A reader should be able to follo
 - Services own business logic and orchestration
 - Repositories are Spring Data JPA interfaces only — no query logic in service or controller
 - Use constructor injection; avoid `@Autowired` on fields
-- `@Transactional` belongs on the service method that owns the unit of work
 - Do not leak JPA entities into API responses — use dedicated response DTOs
 
 ---

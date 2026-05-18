@@ -13,5 +13,5 @@ This document describes how AI tools were used during the development of this se
 ### Review and Validation Process
 - Created API_Contract.md to define the scope.md 
 - Rephrased writings in different files such as reasoning in scope.md, README.md sections 
-- 
+- Took help to align the package structure after giving rules to come up with the structure and layered rules. 
 
