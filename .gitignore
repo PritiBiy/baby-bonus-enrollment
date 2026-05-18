@@ -64,3 +64,6 @@ logs/
 .env.*
 !.env.example
 local.properties
+
+### Other
+assignment.md
