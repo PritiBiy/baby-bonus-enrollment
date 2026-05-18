@@ -1,0 +1,20 @@
+[
+  {
+    "nric": "T2400001A",
+    "name": "Tan Baby",
+    "dateOfBirth": "2025-01-15",
+    "citizenship": "SINGAPORE_CITIZEN"
+  },
+  {
+    "nric": "T2400002B",
+    "name": "Lee Baby",
+    "dateOfBirth": "2025-03-10",
+    "citizenship": "PERMANENT_RESIDENT"
+  },
+  {
+    "nric": "T2400003C",
+    "name": "Ng Baby",
+    "dateOfBirth": "2025-06-01",
+    "citizenship": "FOREIGNER"
+  }
+]
