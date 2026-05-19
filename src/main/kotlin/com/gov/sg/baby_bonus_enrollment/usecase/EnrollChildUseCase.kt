@@ -60,6 +60,7 @@ class EnrollChildUseCase(
 
         val disbursement = disbursementRepository.save(
             Disbursement(
+                id = result.disbursementId,
                 enrollmentId = enrollment.id,
                 type = DisbursementType.CASH_GIFT,
                 amount = BigDecimal("3000.00"),
