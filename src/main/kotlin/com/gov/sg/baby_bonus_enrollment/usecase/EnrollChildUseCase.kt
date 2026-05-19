@@ -25,6 +25,8 @@ import java.time.Clock
 import java.time.Instant
 import java.util.UUID
 
+internal val CASH_GIFT_AMOUNT: BigDecimal = BigDecimal("3000.00")
+
 @Component
 class EnrollChildUseCase(
     private val enrollmentRepository: EnrollmentEntityRepository,
@@ -80,13 +82,13 @@ class EnrollChildUseCase(
 
     private fun initiateDisbursement(enrollment: Enrollment): Disbursement {
         val result: DisbursementResult =
-            disbursementClient.initiate(enrollment.id, DisbursementType.CASH_GIFT, BigDecimal("3000.00"))
+            disbursementClient.initiate(enrollment.id, DisbursementType.CASH_GIFT, CASH_GIFT_AMOUNT)
         val disbursement = disbursementRepository.save(
             Disbursement(
                 id = result.disbursementId,
                 enrollmentId = enrollment.id,
                 type = DisbursementType.CASH_GIFT,
-                amount = BigDecimal("3000.00"),
+                amount = CASH_GIFT_AMOUNT,
                 status = result.status,
                 processedAt = result.processedAt
             )

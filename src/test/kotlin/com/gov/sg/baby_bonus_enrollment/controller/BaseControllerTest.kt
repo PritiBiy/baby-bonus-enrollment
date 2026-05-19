@@ -8,6 +8,7 @@ import com.gov.sg.baby_bonus_enrollment.external.disbursement.DisbursementResult
 import com.gov.sg.baby_bonus_enrollment.external.ica.ChildRecord
 import com.gov.sg.baby_bonus_enrollment.external.ica.IcaClient
 import com.gov.sg.baby_bonus_enrollment.external.iroas.IroasClient
+import com.gov.sg.baby_bonus_enrollment.usecase.CASH_GIFT_AMOUNT
 import com.gov.sg.baby_bonus_enrollment.external.iroas.ParentRecord
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
@@ -20,7 +21,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import tools.jackson.databind.ObjectMapper
-import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
@@ -65,7 +65,7 @@ abstract class BaseControllerTest {
     }
 
     protected fun stubDisbursement(disbursementId: UUID = UUID.randomUUID()): UUID {
-        given(disbursementClient.initiate(any(), eq(DisbursementType.CASH_GIFT), eq(BigDecimal("3000.00")))).willReturn(
+        given(disbursementClient.initiate(any(), eq(DisbursementType.CASH_GIFT), eq(CASH_GIFT_AMOUNT))).willReturn(
             DisbursementResult(disbursementId, DisbursementStatus.PROCESSED, Instant.now())
         )
         return disbursementId

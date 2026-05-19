@@ -8,6 +8,7 @@ import com.gov.sg.baby_bonus_enrollment.domain.enrollment.EnrollmentEntityReposi
 import com.gov.sg.baby_bonus_enrollment.domain.enrollment.EnrollmentStatus
 import com.gov.sg.baby_bonus_enrollment.domain.enrollment.Relationship
 import com.gov.sg.baby_bonus_enrollment.domain.disbursement.DisbursementEntityRepository
+import com.gov.sg.baby_bonus_enrollment.usecase.CASH_GIFT_AMOUNT
 import com.gov.sg.baby_bonus_enrollment.external.disbursement.DisbursementClient
 import com.gov.sg.baby_bonus_enrollment.external.disbursement.DisbursementResult
 import com.gov.sg.baby_bonus_enrollment.external.ica.ChildRecord
@@ -80,7 +81,7 @@ class EnrollChildUseCaseTest {
         whenever(iroasClient.findParent(parentNric.value)).thenReturn(parent)
         whenever(enrollmentRepository.findByChildNric(childNric.value)).thenReturn(emptyList())
         whenever(enrollmentRepository.save(any())).thenReturn(savedEnrollment)
-        whenever(disbursementClient.initiate(any(), eq(DisbursementType.CASH_GIFT), eq(BigDecimal("3000.00")))).thenReturn(disbursementResult)
+        whenever(disbursementClient.initiate(any(), eq(DisbursementType.CASH_GIFT), eq(CASH_GIFT_AMOUNT))).thenReturn(disbursementResult)
         whenever(disbursementRepository.save(any())).thenAnswer { invocation -> invocation.arguments[0] }
 
         val result = useCase.execute(request)
