@@ -103,7 +103,7 @@ Tasks are ordered. Start each with a failing integration test — build everythi
 
 ### Task 9 — Infrastructure and Submission
 
-- [x] `Dockerfile` — multi-stage build; JRE-only runtime image
+- [x] `Dockerfile` — multi-stage build; JRE-only runtime image; verified with `docker build` and live smoke test
 - [x] `README.md` — setup, how to run, assumptions, "What I would do next"
 - [x] `AI_USAGE.md` — maintained throughout development
 

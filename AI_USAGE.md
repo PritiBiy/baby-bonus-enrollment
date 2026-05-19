@@ -75,6 +75,7 @@ This document describes how AI tools were used during the development of this se
 
 - Dockerfile uses a multi-stage build: dependency resolution in one layer (cache-friendly), source compilation in the next, JRE-only runtime image to minimise attack surface.
 - README Assumptions and "What I would do next" sections written by user direction; CC drafted the content based on SCOPE.md and design decisions made throughout the project.
+- Docker build verified end-to-end: `docker build` succeeded, container started with `API_KEY` env var, and a live request returned `404` (correct for unknown enrollment ID), confirming auth and routing work inside the container.
 
 ### Task 7 — GET /api/v1/enrollments?childNric=
 
