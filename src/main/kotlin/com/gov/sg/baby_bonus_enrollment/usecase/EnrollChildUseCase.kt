@@ -37,14 +37,10 @@ class EnrollChildUseCase(
 ) {
     fun execute(request: CreateEnrollmentDto): EnrollmentDto {
         auditEnrollmentSubmitted(request.childNric, request.parentNric)
-        checkEligibility(request)
-        auditEligibilityPassed(request.childNric)
 
+        checkEligibility(request)
         val enrollment = saveEnrollment(request)
         val disbursement = initiateDisbursement(enrollment)
-
-        auditDisbursementInitiated(enrollment.id, disbursement.amount)
-
         return toDto(enrollment, disbursement)
     }
 
@@ -62,6 +58,8 @@ class EnrollChildUseCase(
             auditEligibilityFailed(request.childNric, "Child already has an active enrollment")
             throw DuplicateEnrollmentException("Child already has an active enrollment")
         }
+
+        auditEligibilityPassed(request.childNric)
     }
 
     private fun failEligibility(childNric: Nric, reason: EligibilityReason): Nothing {
@@ -83,7 +81,7 @@ class EnrollChildUseCase(
     private fun initiateDisbursement(enrollment: Enrollment): Disbursement {
         val result: DisbursementResult =
             disbursementClient.initiate(enrollment.id, DisbursementType.CASH_GIFT, BigDecimal("3000.00"))
-        return disbursementRepository.save(
+        val disbursement = disbursementRepository.save(
             Disbursement(
                 id = result.disbursementId,
                 enrollmentId = enrollment.id,
@@ -93,6 +91,8 @@ class EnrollChildUseCase(
                 processedAt = result.processedAt
             )
         )
+        auditDisbursementInitiated(enrollment.id, disbursement.amount)
+        return disbursement
     }
 
     private fun toDto(enrollment: Enrollment, disbursement: Disbursement): EnrollmentDto =

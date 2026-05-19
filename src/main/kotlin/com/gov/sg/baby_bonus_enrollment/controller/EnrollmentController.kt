@@ -9,6 +9,7 @@ import com.gov.sg.baby_bonus_enrollment.usecase.EnrollChildUseCase
 import com.gov.sg.baby_bonus_enrollment.usecase.GetEnrollmentByIdUseCase
 import com.gov.sg.baby_bonus_enrollment.usecase.GetEnrollmentsByChildNricUseCase
 import com.gov.sg.baby_bonus_enrollment.usecase.dto.CreateEnrollmentDto
+import com.gov.sg.baby_bonus_enrollment.usecase.dto.EnrollmentDto
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
@@ -42,50 +43,26 @@ class EnrollmentController(
             parentNric = Nric(request.parentNric),
             relationship = relationship
         )
-        val result = enrollChildUseCase.execute(dto)
-        return EnrollmentResponse(
-            id = result.id,
-            childNric = result.childNric,
-            parentNric = result.parentNric,
-            relationship = result.relationship,
-            status = result.status,
-            enrolledAt = result.enrolledAt,
-            disbursement = result.disbursement?.let {
-                DisbursementResponse(it.id, it.type, it.amount, it.status, it.processedAt)
-            }
-        )
+        return enrollChildUseCase.execute(dto).toResponse()
     }
 
     @GetMapping
-    fun listByChildNric(@RequestParam childNric: String): List<EnrollmentResponse> {
-        return getEnrollmentsByChildNricUseCase.execute(childNric).map { result ->
-            EnrollmentResponse(
-                id = result.id,
-                childNric = result.childNric,
-                parentNric = result.parentNric,
-                relationship = result.relationship,
-                status = result.status,
-                enrolledAt = result.enrolledAt,
-                disbursement = result.disbursement?.let {
-                    DisbursementResponse(it.id, it.type, it.amount, it.status, it.processedAt)
-                }
-            )
-        }
-    }
+    fun listByChildNric(@RequestParam childNric: String): List<EnrollmentResponse> =
+        getEnrollmentsByChildNricUseCase.execute(childNric).map { it.toResponse() }
 
     @GetMapping("/{id}")
-    fun getById(@PathVariable id: UUID): EnrollmentResponse {
-        val result = getEnrollmentByIdUseCase.execute(id)
-        return EnrollmentResponse(
-            id = result.id,
-            childNric = result.childNric,
-            parentNric = result.parentNric,
-            relationship = result.relationship,
-            status = result.status,
-            enrolledAt = result.enrolledAt,
-            disbursement = result.disbursement?.let {
-                DisbursementResponse(it.id, it.type, it.amount, it.status, it.processedAt)
-            }
-        )
-    }
+    fun getById(@PathVariable id: UUID): EnrollmentResponse =
+        getEnrollmentByIdUseCase.execute(id).toResponse()
+
+    private fun EnrollmentDto.toResponse() = EnrollmentResponse(
+        id = id,
+        childNric = childNric,
+        parentNric = parentNric,
+        relationship = relationship,
+        status = status,
+        enrolledAt = enrolledAt,
+        disbursement = disbursement?.let {
+            DisbursementResponse(it.id, it.type, it.amount, it.status, it.processedAt)
+        }
+    )
 }
