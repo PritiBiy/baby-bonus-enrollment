@@ -1,5 +1,7 @@
 package com.gov.sg.baby_bonus_enrollment.usecase
 
+import com.gov.sg.baby_bonus_enrollment.audit.AuditLogger
+import com.gov.sg.baby_bonus_enrollment.domain.Nric
 import com.gov.sg.baby_bonus_enrollment.domain.disbursement.Disbursement
 import com.gov.sg.baby_bonus_enrollment.domain.disbursement.DisbursementEntityRepository
 import com.gov.sg.baby_bonus_enrollment.domain.disbursement.DisbursementType
@@ -29,27 +31,44 @@ class EnrollChildUseCase(
     private val icaClient: IcaClient,
     private val iroasClient: IroasClient,
     private val disbursementClient: DisbursementClient,
-    private val clock: Clock
+    private val clock: Clock,
+    private val auditLogger: AuditLogger
 ) {
     fun execute(request: CreateEnrollmentDto): EnrollmentDto {
-        checkEligibility(request)
+        auditLogger.enrollmentSubmitted(request.childNric, request.parentNric)
+
+        try {
+            checkEligibility(request)
+        } catch (e: EligibilityException) {
+            auditLogger.eligibilityFailed(request.childNric, e.reason.message)
+            throw e
+        } catch (e: DuplicateEnrollmentException) {
+            auditLogger.eligibilityFailed(request.childNric, e.message ?: "Duplicate enrollment")
+            throw e
+        }
+
+        auditLogger.eligibilityPassed(request.childNric)
+
         val enrollment = saveEnrollment(request)
         val disbursement = initiateDisbursement(enrollment)
+
+        auditLogger.disbursementInitiated(enrollment.id, disbursement.amount)
+
         return toDto(enrollment, disbursement)
     }
 
     private fun checkEligibility(request: CreateEnrollmentDto) {
-        val child = icaClient.findChild(request.childNric)
+        val child = icaClient.findChild(request.childNric.value)
             ?: throw EligibilityException(EligibilityReason.CHILD_NOT_FOUND)
 
         if (child.citizenship != Citizenship.SINGAPORE_CITIZEN) {
             throw EligibilityException(EligibilityReason.NOT_SINGAPORE_CITIZEN)
         }
 
-        iroasClient.findParent(request.parentNric)
+        iroasClient.findParent(request.parentNric.value)
             ?: throw EligibilityException(EligibilityReason.PARENT_NOT_FOUND)
 
-        val existing = enrollmentRepository.findByChildNric(request.childNric)
+        val existing = enrollmentRepository.findByChildNric(request.childNric.value)
         if (existing.any { it.status == EnrollmentStatus.ENROLLED }) {
             throw DuplicateEnrollmentException("Child already has an active enrollment")
         }
@@ -58,8 +77,8 @@ class EnrollChildUseCase(
     private fun saveEnrollment(request: CreateEnrollmentDto): Enrollment =
         enrollmentRepository.save(
             Enrollment(
-                childNric = request.childNric,
-                parentNric = request.parentNric,
+                childNric = request.childNric.value,
+                parentNric = request.parentNric.value,
                 relationship = request.relationship,
                 status = EnrollmentStatus.ENROLLED,
                 enrolledAt = Instant.now(clock)
@@ -84,8 +103,8 @@ class EnrollChildUseCase(
     private fun toDto(enrollment: Enrollment, disbursement: Disbursement): EnrollmentDto =
         EnrollmentDto(
             id = enrollment.id,
-            childNric = mask(enrollment.childNric),
-            parentNric = mask(enrollment.parentNric),
+            childNric = Nric(enrollment.childNric).masked(),
+            parentNric = Nric(enrollment.parentNric).masked(),
             relationship = enrollment.relationship,
             status = enrollment.status,
             enrolledAt = enrollment.enrolledAt,
@@ -97,6 +116,4 @@ class EnrollChildUseCase(
                 processedAt = disbursement.processedAt
             )
         )
-
-    private fun mask(nric: String) = nric.take(4) + "****" + nric.last()
 }

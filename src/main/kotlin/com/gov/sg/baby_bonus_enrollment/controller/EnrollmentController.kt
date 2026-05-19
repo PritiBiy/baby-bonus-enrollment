@@ -3,6 +3,7 @@ package com.gov.sg.baby_bonus_enrollment.controller
 import com.gov.sg.baby_bonus_enrollment.controller.request.EnrollmentRequest
 import com.gov.sg.baby_bonus_enrollment.controller.response.DisbursementResponse
 import com.gov.sg.baby_bonus_enrollment.controller.response.EnrollmentResponse
+import com.gov.sg.baby_bonus_enrollment.domain.Nric
 import com.gov.sg.baby_bonus_enrollment.domain.enrollment.Relationship
 import com.gov.sg.baby_bonus_enrollment.usecase.EnrollChildUseCase
 import com.gov.sg.baby_bonus_enrollment.usecase.dto.CreateEnrollmentDto
@@ -27,8 +28,8 @@ class EnrollmentController(private val enrollChildUseCase: EnrollChildUseCase) {
             throw IllegalArgumentException("Invalid value for relationship")
         }
         val dto = CreateEnrollmentDto(
-            childNric = request.childNric,
-            parentNric = request.parentNric,
+            childNric = Nric(request.childNric),
+            parentNric = Nric(request.parentNric),
             relationship = relationship
         )
         val result = enrollChildUseCase.execute(dto)

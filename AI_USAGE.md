@@ -41,3 +41,10 @@ This document describes how AI tools were used during the development of this se
 - CC initially wrote `api.key=change-me` hardcoded in `application.properties`; corrected to read from `API_KEY` env var (`api.key=${API_KEY}`) with no fallback — startup fails if the env var is not set.
 - `src/test/resources/application.properties` sets `api.key=test-api-key` so tests run without the env var; production config is separate.
 
+### Task 3 — Audit Logging (session 5)
+
+- Introduced `Nric` as a `@JvmInline value class` with `toString()` returning the masked form — the type system prevents any code path from accidentally logging a raw NRIC; no runtime overhead.
+- `AuditLogger` in `audit/` accepts `Nric` parameters; `toString()` auto-masks in SLF4J format strings — no explicit masking call needed at each log site.
+- `CreateEnrollmentDto` updated to hold `Nric` instead of `String`; controller wraps the incoming string at the boundary; use case no longer needs the `mask()` helper.
+- MDC caller set in `ApiKeyFilter` after successful authentication; cleared in `finally` block; log pattern includes `%X{caller}` so every log line records the caller identity without threading it through the call stack.
+

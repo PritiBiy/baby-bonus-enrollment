@@ -3,6 +3,7 @@ package com.gov.sg.baby_bonus_enrollment.security
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.slf4j.MDC
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -27,6 +28,11 @@ class ApiKeyFilter(
             response.writer.write("""{"error":"Unauthorised"}""")
             return
         }
-        chain.doFilter(request, response)
+        MDC.put("caller", "api-key")
+        try {
+            chain.doFilter(request, response)
+        } finally {
+            MDC.clear()
+        }
     }
 }

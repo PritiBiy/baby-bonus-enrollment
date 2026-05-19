@@ -14,9 +14,15 @@ import com.gov.sg.baby_bonus_enrollment.external.ica.ChildRecord
 import com.gov.sg.baby_bonus_enrollment.external.ica.IcaClient
 import com.gov.sg.baby_bonus_enrollment.external.iroas.IroasClient
 import com.gov.sg.baby_bonus_enrollment.external.iroas.ParentRecord
+import ch.qos.logback.classic.spi.ILoggingEvent
+import ch.qos.logback.core.read.ListAppender
+import com.gov.sg.baby_bonus_enrollment.audit.AuditLogger
 import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.slf4j.LoggerFactory
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.given
@@ -210,6 +216,65 @@ class EnrollmentControllerTest {
 
             objectMapper.readValue<ErrorResponse>(result.response.contentAsString) shouldBe
                 ErrorResponse("parentNric must not be blank")
+        }
+    }
+
+    @Nested
+    inner class AuditLogging {
+
+        private lateinit var logCapture: ListAppender<ILoggingEvent>
+
+        @BeforeEach
+        fun attachLogCapture() {
+            logCapture = ListAppender<ILoggingEvent>().also {
+                (LoggerFactory.getLogger(AuditLogger::class.java) as ch.qos.logback.classic.Logger)
+                    .addAppender(it)
+                it.start()
+            }
+        }
+
+        @AfterEach
+        fun detachLogCapture() {
+            (LoggerFactory.getLogger(AuditLogger::class.java) as ch.qos.logback.classic.Logger)
+                .detachAppender(logCapture)
+        }
+
+        @Test
+        fun `logs ENROLLMENT_SUBMITTED, ELIGIBILITY_PASSED and DISBURSEMENT_INITIATED with masked NRICs on success`() {
+            given(icaClient.findChild(eq("T2400002B"))).willReturn(
+                ChildRecord("T2400002B", "Tan Baby Log", LocalDate.of(2025, 2, 1), Citizenship.SINGAPORE_CITIZEN)
+            )
+            given(iroasClient.findParent(eq("S8001234A"))).willReturn(
+                ParentRecord("S8001234A", "Tan Ah Kow")
+            )
+            given(disbursementClient.initiate(any(), eq(DisbursementType.CASH_GIFT), eq(BigDecimal("3000.00")))).willReturn(
+                DisbursementResult(UUID.randomUUID(), DisbursementStatus.PROCESSED, Instant.now())
+            )
+
+            mockMvc.perform(
+                post("/api/v1/enrollments")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("X-API-Key", API_KEY)
+                    .content("""{"childNric": "T2400002B", "parentNric": "S8001234A", "relationship": "FATHER"}""")
+            ).andExpect(status().isCreated)
+
+            val messages = logCapture.list.map { it.formattedMessage }
+            messages.any { "ENROLLMENT_SUBMITTED" in it && "T240****B" in it && "S800****A" in it } shouldBe true
+            messages.any { "ELIGIBILITY_PASSED" in it } shouldBe true
+            messages.any { "DISBURSEMENT_INITIATED" in it } shouldBe true
+            messages.none { "T2400002B" in it } shouldBe true
+            messages.none { "S8001234A" in it } shouldBe true
+        }
+
+        @Test
+        fun `logs ELIGIBILITY_FAILED with reason and masked NRIC when child is not found`() {
+            given(icaClient.findChild(eq("T2400001A"))).willReturn(null)
+
+            mockMvc.perform(enrollmentRequest()).andExpect(status().isUnprocessableEntity)
+
+            val messages = logCapture.list.map { it.formattedMessage }
+            messages.any { "ELIGIBILITY_FAILED" in it && "Child not found in ICA records" in it } shouldBe true
+            messages.none { "T2400001A" in it } shouldBe true
         }
     }
 

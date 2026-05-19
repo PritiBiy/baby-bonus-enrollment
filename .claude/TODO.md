@@ -39,11 +39,13 @@ Tasks are ordered. Start each with a failing integration test — build everythi
 
 ### Task 3 — Audit Logging
 
-- [ ] use slf4j with Logback; configure in `application.properties` to log to file with daily rotation
-- [ ] Log: enrollment submitted — timestamp, masked child NRIC, caller identity, outcome
-- [ ] Log: eligibility check result — pass/fail and reason
-- [ ] Log: disbursement initiated — enrollment ID, amount
-- [ ] Verify no raw NRIC appears in any log output
+- [x] use slf4j with Logback; configure in `application.properties` to log to file with daily rotation
+- [x] Log: enrollment submitted — masked child NRIC, caller identity (via MDC set in ApiKeyFilter)
+- [x] Log: eligibility check result — pass/fail and reason
+- [x] Log: disbursement initiated — enrollment ID, amount
+- [x] Verify no raw NRIC appears in any log output (enforced by `Nric` value class `toString()`)
+- [x] `Nric` typed value class introduced — `toString()` always returns masked form; type system prevents raw leaks
+- [x] All tests pass (31 tests green)
 
 ---
 
@@ -101,3 +103,11 @@ Tasks are ordered. Start each with a failing integration test — build everythi
 - [ ] `Dockerfile` — builds and runs the service
 - [ ] `README.md` — setup, how to run, assumptions, "What I would do next"
 - [ ] `AI_USAGE.md` — tools used, how output was reviewed, what was discarded
+
+### Task 10 — Misc
+
+- [ ] Create precommit hook check if cc has built in hooks for this. 
+- [ ] For Disbursement 3000, create constant and give meaningful name.
+- [ ] 
+
+---
