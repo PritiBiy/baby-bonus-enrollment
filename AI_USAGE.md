@@ -51,6 +51,15 @@ This document describes how AI tools were used during the development of this se
 - Log levels: eligibility failures and duplicates use `WARN` (recoverable business rejections); normal flow uses `INFO`; unexpected exceptions in `GlobalExceptionHandler` use `ERROR`.
 - User directed moving the try-catch out of `execute` into `checkEligibility` so failure logging is co-located with the failure. Simplified further using a `Nothing`-returning `failEligibility` helper — each eligibility check becomes a one-liner with no try-catch.
 - User directed method ordering convention: business logic in call order near the top, low-level concerns (audit one-liners) at the bottom since their names are self-explanatory. Rule captured in `CLAUDE.md`.
+### Task 8 — PATCH /api/v1/enrollments/{id}/ineligible
+
+- CC proposed `IneligibleRequest` and `AlreadyIneligibleException` as initial names; user directed adding domain context to both names — `MarkIneligibleEnrollmentStatusRequest` and `EnrollmentAlreadyIneligibleException` — so names are self-explanatory without reading the implementation.
+- `EnrollmentAlreadyIneligibleException` maps to 422 in `GlobalExceptionHandler`, consistent with other business rule violations.
+- `reason` field was already present on `Enrollment` domain class and `EnrollmentEntity` from earlier design — no schema migration needed.
+- 43 tests green.
+
+### Refactoring
+
 - User directed moving `auditEligibilityPassed` into `checkEligibility` and `auditDisbursementInitiated` into `initiateDisbursement` — each method now owns its own audit logging, and `execute` reads as a clean sequence of steps.
 - User identified repeated `EnrollmentResponse(...)` mapping across all three controller methods; extracted as a private `EnrollmentDto.toResponse()` extension function — controller endpoints reduced to single-line expressions.
 

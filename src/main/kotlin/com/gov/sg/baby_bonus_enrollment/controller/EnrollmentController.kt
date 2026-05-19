@@ -5,14 +5,17 @@ import com.gov.sg.baby_bonus_enrollment.controller.response.DisbursementResponse
 import com.gov.sg.baby_bonus_enrollment.controller.response.EnrollmentResponse
 import com.gov.sg.baby_bonus_enrollment.domain.Nric
 import com.gov.sg.baby_bonus_enrollment.domain.enrollment.Relationship
+import com.gov.sg.baby_bonus_enrollment.controller.request.MarkIneligibleEnrollmentStatusRequest
 import com.gov.sg.baby_bonus_enrollment.usecase.EnrollChildUseCase
 import com.gov.sg.baby_bonus_enrollment.usecase.GetEnrollmentByIdUseCase
 import com.gov.sg.baby_bonus_enrollment.usecase.GetEnrollmentsByChildNricUseCase
+import com.gov.sg.baby_bonus_enrollment.usecase.MarkEnrollmentIneligibleUseCase
 import com.gov.sg.baby_bonus_enrollment.usecase.dto.CreateEnrollmentDto
 import com.gov.sg.baby_bonus_enrollment.usecase.dto.EnrollmentDto
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -27,7 +30,8 @@ import java.util.UUID
 class EnrollmentController(
     private val enrollChildUseCase: EnrollChildUseCase,
     private val getEnrollmentByIdUseCase: GetEnrollmentByIdUseCase,
-    private val getEnrollmentsByChildNricUseCase: GetEnrollmentsByChildNricUseCase
+    private val getEnrollmentsByChildNricUseCase: GetEnrollmentsByChildNricUseCase,
+    private val markEnrollmentIneligibleUseCase: MarkEnrollmentIneligibleUseCase
 ) {
 
     @PostMapping
@@ -53,6 +57,12 @@ class EnrollmentController(
     @GetMapping("/{id}")
     fun getById(@PathVariable id: UUID): EnrollmentResponse =
         getEnrollmentByIdUseCase.execute(id).toResponse()
+
+    @PatchMapping("/{id}/ineligible")
+    fun markIneligible(
+        @PathVariable id: UUID,
+        @Valid @RequestBody request: MarkIneligibleEnrollmentStatusRequest
+    ): EnrollmentResponse = markEnrollmentIneligibleUseCase.execute(id, request.reason).toResponse()
 
     private fun EnrollmentDto.toResponse() = EnrollmentResponse(
         id = id,

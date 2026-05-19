@@ -92,12 +92,12 @@ Tasks are ordered. Start each with a failing integration test — build everythi
 
 ### Task 8  — PATCH /api/v1/enrollments/{id}/ineligible
 
-- [ ] Write failing integration test: overrides any status to `INELIGIBLE` with reason → `200`
-- [ ] Write failing integration test: already `INELIGIBLE` → `422`
-- [ ] Write failing integration test: unknown ID → `404`
-- [ ] Write failing integration test: blank reason → `400`
-- [ ] Implement PATCH endpoint in controller and use case
-- [ ] All tests pass
+- [x] Write failing integration test: overrides any status to `INELIGIBLE` with reason → `200`
+- [x] Write failing integration test: already `INELIGIBLE` → `422`
+- [x] Write failing integration test: unknown ID → `404`
+- [x] Write failing integration test: blank reason → `400`
+- [x] Implement PATCH endpoint in controller and use case
+- [x] All tests pass (43 tests green)
 
 ---
 

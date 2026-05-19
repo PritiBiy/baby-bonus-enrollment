@@ -2,6 +2,7 @@ package com.gov.sg.baby_bonus_enrollment.controller.exception
 
 import com.gov.sg.baby_bonus_enrollment.audit.AuditLogger
 import com.gov.sg.baby_bonus_enrollment.controller.response.ErrorResponse
+import com.gov.sg.baby_bonus_enrollment.usecase.exception.EnrollmentAlreadyIneligibleException
 import com.gov.sg.baby_bonus_enrollment.usecase.exception.DuplicateEnrollmentException
 import com.gov.sg.baby_bonus_enrollment.usecase.exception.EligibilityException
 import com.gov.sg.baby_bonus_enrollment.usecase.exception.NotFoundException
@@ -18,6 +19,11 @@ class GlobalExceptionHandler(private val auditLogger: AuditLogger) {
     @ExceptionHandler(EligibilityException::class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     fun handleEligibility(e: EligibilityException): ErrorResponse =
+        ErrorResponse(e.message!!)
+
+    @ExceptionHandler(EnrollmentAlreadyIneligibleException::class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    fun handleAlreadyIneligible(e: EnrollmentAlreadyIneligibleException): ErrorResponse =
         ErrorResponse(e.message!!)
 
     @ExceptionHandler(DuplicateEnrollmentException::class)
