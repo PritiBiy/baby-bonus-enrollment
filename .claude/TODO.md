@@ -82,11 +82,11 @@ Tasks are ordered. Start each with a failing integration test — build everythi
 
 ### Task 7 — GET /api/v1/enrollments?childNric=
 
-- [ ] Write failing integration test: returns all enrollments for a child, NRICs masked
-- [ ] Write failing integration test: unknown NRIC → `[]` (not 404)
-- [ ] Write failing integration test: missing `childNric` param → `400`
-- [ ] Implement list by `childNric` in controller and use case
-- [ ] All tests pass
+- [x] Write failing integration test: returns all enrollments for a child, NRICs masked
+- [x] Write failing integration test: unknown NRIC → `[]` (not 404)
+- [x] Write failing integration test: missing `childNric` param → `400`
+- [x] Implement list by `childNric` in controller and use case
+- [x] All tests pass (36 tests green)
 
 ---
 
@@ -111,6 +111,7 @@ Tasks are ordered. Start each with a failing integration test — build everythi
 
 - [ ] Create precommit hook check if cc has built in hooks for this. 
 - [ ] For Disbursement 3000, create constant and give meaningful name.
-- [ ] 
+- [ ] checkEligibility can audit instead of try catch block, its redundant 
+- 
 
 ---

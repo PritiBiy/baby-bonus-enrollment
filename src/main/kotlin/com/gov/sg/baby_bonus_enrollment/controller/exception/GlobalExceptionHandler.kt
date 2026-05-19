@@ -7,6 +7,7 @@ import com.gov.sg.baby_bonus_enrollment.usecase.exception.EligibilityException
 import com.gov.sg.baby_bonus_enrollment.usecase.exception.NotFoundException
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.MethodArgumentNotValidException
+import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -34,6 +35,11 @@ class GlobalExceptionHandler(private val auditLogger: AuditLogger) {
         val message = e.bindingResult.fieldErrors.firstOrNull()?.defaultMessage ?: "Bad request"
         return ErrorResponse(message)
     }
+
+    @ExceptionHandler(MissingServletRequestParameterException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handleMissingParam(e: MissingServletRequestParameterException): ErrorResponse =
+        ErrorResponse("${e.parameterName} query parameter is required")
 
     @ExceptionHandler(IllegalArgumentException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)

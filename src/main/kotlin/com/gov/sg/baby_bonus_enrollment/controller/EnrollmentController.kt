@@ -7,6 +7,7 @@ import com.gov.sg.baby_bonus_enrollment.domain.Nric
 import com.gov.sg.baby_bonus_enrollment.domain.enrollment.Relationship
 import com.gov.sg.baby_bonus_enrollment.usecase.EnrollChildUseCase
 import com.gov.sg.baby_bonus_enrollment.usecase.GetEnrollmentByIdUseCase
+import com.gov.sg.baby_bonus_enrollment.usecase.GetEnrollmentsByChildNricUseCase
 import com.gov.sg.baby_bonus_enrollment.usecase.dto.CreateEnrollmentDto
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
@@ -23,7 +25,8 @@ import java.util.UUID
 @RequestMapping("/api/v1/enrollments")
 class EnrollmentController(
     private val enrollChildUseCase: EnrollChildUseCase,
-    private val getEnrollmentByIdUseCase: GetEnrollmentByIdUseCase
+    private val getEnrollmentByIdUseCase: GetEnrollmentByIdUseCase,
+    private val getEnrollmentsByChildNricUseCase: GetEnrollmentsByChildNricUseCase
 ) {
 
     @PostMapping
@@ -51,6 +54,23 @@ class EnrollmentController(
                 DisbursementResponse(it.id, it.type, it.amount, it.status, it.processedAt)
             }
         )
+    }
+
+    @GetMapping
+    fun listByChildNric(@RequestParam childNric: String): List<EnrollmentResponse> {
+        return getEnrollmentsByChildNricUseCase.execute(childNric).map { result ->
+            EnrollmentResponse(
+                id = result.id,
+                childNric = result.childNric,
+                parentNric = result.parentNric,
+                relationship = result.relationship,
+                status = result.status,
+                enrolledAt = result.enrolledAt,
+                disbursement = result.disbursement?.let {
+                    DisbursementResponse(it.id, it.type, it.amount, it.status, it.processedAt)
+                }
+            )
+        }
     }
 
     @GetMapping("/{id}")

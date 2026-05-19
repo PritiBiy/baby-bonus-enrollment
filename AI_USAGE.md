@@ -58,3 +58,10 @@ This document describes how AI tools were used during the development of this se
 - CC initially proposed splitting into four files by concern (`PostEnrollmentControllerTest`, `GetEnrollmentByIdControllerTest`, `AuditLoggingControllerTest`, `UnauthorizedControllerTest`); user corrected this to split strictly by API endpoint — so audit logging and auth tests fold into `PostEnrollmentControllerTest` as `@Nested` inner classes since they exercise the POST endpoint.
 - All 33 tests continue to pass.
 
+### Task 7 — GET /api/v1/enrollments?childNric=
+
+- Repository layer (`findByChildNric`, `findByEnrollmentId`) was already in place from Task 1; Task 7 only needed the use case and controller wiring.
+- User directed removing the 400-missing-param test initially, then corrected: code was added to `GlobalExceptionHandler` for `MissingServletRequestParameterException`, so a test is required — test was added back.
+- User directed using `@RequestParam childNric: String` (required=true by default) instead of `required = false` with a manual null check; `MissingServletRequestParameterException` handler in `GlobalExceptionHandler` produces the correct error shape and message using `e.parameterName`.
+- 36 tests green.
+
