@@ -25,7 +25,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("tools.jackson.module:jackson-module-kotlin")
-	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6")
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3")
 	runtimeOnly("com.h2database:h2")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
@@ -49,4 +49,8 @@ allOpen {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+tasks.named<Jar>("jar") {
+	enabled = false
 }
