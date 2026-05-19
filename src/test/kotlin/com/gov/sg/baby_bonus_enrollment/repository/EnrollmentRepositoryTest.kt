@@ -1,5 +1,7 @@
 package com.gov.sg.baby_bonus_enrollment.repository
 
+import com.gov.sg.baby_bonus_enrollment.domain.enrollment.Enrollment
+import com.gov.sg.baby_bonus_enrollment.domain.enrollment.EnrollmentRepository
 import com.gov.sg.baby_bonus_enrollment.domain.enrollment.EnrollmentStatus
 import com.gov.sg.baby_bonus_enrollment.domain.enrollment.Relationship
 import jakarta.transaction.Transactional
@@ -17,25 +19,41 @@ class EnrollmentRepositoryTest {
     @Autowired private lateinit var repository: EnrollmentRepository
 
     @Test
-    fun `saves and reloads enrollment with all fields intact`() {
-        val entity = EnrollmentEntity(
-            childNric = "T2400001A",
-            parentNric = "S8001234A",
-            relationship = Relationship.FATHER,
-            status = EnrollmentStatus.ENROLLED,
-            reason = null,
-            enrolledAt = Instant.parse("2025-01-15T10:00:00Z"),
-            createdAt = Instant.parse("2025-01-15T09:00:00Z")
-        )
+    fun `save and findById returns saved enrollment`() {
+        val enrollment = enrollment()
 
-        repository.save(entity)
-        val loaded = repository.findById(entity.id).orElseThrow()
+        repository.save(enrollment)
 
-        assertEquals("T2400001A", loaded.childNric)
-        assertEquals("S8001234A", loaded.parentNric)
-        assertEquals(Relationship.FATHER, loaded.relationship)
-        assertEquals(EnrollmentStatus.ENROLLED, loaded.status)
-        assertNull(loaded.reason)
-        assertEquals(Instant.parse("2025-01-15T10:00:00Z"), loaded.enrolledAt)
+        assertEquals(enrollment, repository.findById(enrollment.id))
     }
+
+    @Test
+    fun `findById returns null for unknown id`() {
+        assertNull(repository.findById(java.util.UUID.randomUUID()))
+    }
+
+    @Test
+    fun `findByChildNric returns all enrollments for a child`() {
+        val first = enrollment(childNric = "T2400001A")
+        val second = enrollment(childNric = "T2400001A")
+        val other = enrollment(childNric = "T2400002B")
+        listOf(first, second, other).forEach { repository.save(it) }
+
+        val results = repository.findByChildNric("T2400001A")
+
+        assertEquals(listOf(first, second), results)
+    }
+
+    @Test
+    fun `findByChildNric returns empty list when no enrollment exists`() {
+        assertEquals(emptyList(), repository.findByChildNric("X9999999Z"))
+    }
+
+    private fun enrollment(childNric: String = "T2400001A") = Enrollment(
+        childNric = childNric,
+        parentNric = "S8001234A",
+        relationship = Relationship.FATHER,
+        status = EnrollmentStatus.ENROLLED,
+        enrolledAt = Instant.parse("2025-01-15T10:00:00Z")
+    )
 }

@@ -1,5 +1,6 @@
 package com.gov.sg.baby_bonus_enrollment.repository
 
+import com.gov.sg.baby_bonus_enrollment.domain.enrollment.Enrollment
 import com.gov.sg.baby_bonus_enrollment.domain.enrollment.EnrollmentStatus
 import com.gov.sg.baby_bonus_enrollment.domain.enrollment.Relationship
 import jakarta.persistence.*
@@ -34,4 +35,26 @@ class EnrollmentEntity(
 
     @Column(name = "created_at", nullable = false)
     val createdAt: Instant = Instant.now()
-)
+) {
+    fun toDomain(): Enrollment = Enrollment(
+        id = id,
+        childNric = childNric,
+        parentNric = parentNric,
+        relationship = relationship,
+        status = status,
+        reason = reason,
+        enrolledAt = enrolledAt
+    )
+
+    companion object {
+        fun from(enrollment: Enrollment): EnrollmentEntity = EnrollmentEntity(
+            id = enrollment.id,
+            childNric = enrollment.childNric,
+            parentNric = enrollment.parentNric,
+            relationship = enrollment.relationship,
+            status = enrollment.status,
+            reason = enrollment.reason,
+            enrolledAt = enrollment.enrolledAt
+        )
+    }
+}

@@ -108,7 +108,9 @@ class EnrollmentRepositoryTest {
 }
 ```
 
-**Keep it to one test per repository** — save an entity with all fields set, reload by ID, assert each field. That single test covers mappings, column types, nullable constraints, and enum persistence in one pass.
+**Keep it to one test per repository** — save a domain object with all fields set, reload by ID, assert with data class `equals`. That single test covers mappings, column types, nullable constraints, and enum persistence in one pass.
+
+**Do not write tests for `*JpaRepository` interfaces.** Test only through the domain-level repository (`EnrollmentRepository`, `DisbursementRepository`). The JPA layer is covered implicitly.
 
 **Side-effect assertions live here.** If you want to verify a record was created as a result of an operation, assert it in a repository test — not in the HTTP integration test.
 

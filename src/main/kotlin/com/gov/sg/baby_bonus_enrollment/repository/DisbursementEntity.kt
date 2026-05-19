@@ -1,5 +1,6 @@
 package com.gov.sg.baby_bonus_enrollment.repository
 
+import com.gov.sg.baby_bonus_enrollment.domain.disbursement.Disbursement
 import com.gov.sg.baby_bonus_enrollment.domain.disbursement.DisbursementStatus
 import com.gov.sg.baby_bonus_enrollment.domain.disbursement.DisbursementType
 import jakarta.persistence.*
@@ -29,4 +30,24 @@ class DisbursementEntity(
 
     @Column(name = "processed_at")
     var processedAt: Instant? = null
-)
+) {
+    fun toDomain(): Disbursement = Disbursement(
+        id = id,
+        enrollmentId = enrollmentId,
+        type = type,
+        amount = amount,
+        status = status,
+        processedAt = processedAt
+    )
+
+    companion object {
+        fun from(disbursement: Disbursement): DisbursementEntity = DisbursementEntity(
+            id = disbursement.id,
+            enrollmentId = disbursement.enrollmentId,
+            type = disbursement.type,
+            amount = disbursement.amount,
+            status = disbursement.status,
+            processedAt = disbursement.processedAt
+        )
+    }
+}

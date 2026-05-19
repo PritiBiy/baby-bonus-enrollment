@@ -37,19 +37,23 @@ com.gov.sg.baby_bonus_enrollment
 ├── domain/
 │   ├── enrollment/
 │   │   ├── Enrollment.kt                ← pure data class, no JPA
+│   │   ├── EnrollmentRepository.kt      ← repository interface (domain contract)
 │   │   ├── Citizenship.kt
 │   │   ├── Relationship.kt
 │   │   └── EnrollmentStatus.kt
 │   └── disbursement/
 │       ├── Disbursement.kt              ← pure data class, no JPA
+│       ├── DisbursementRepository.kt    ← repository interface (domain contract)
 │       ├── DisbursementType.kt
 │       └── DisbursementStatus.kt
 │
 ├── repository/
 │   ├── EnrollmentEntity.kt              ← JPA entity for enrollment table
-│   ├── EnrollmentRepository.kt          ← interface
+│   ├── EnrollmentJpaRepository.kt       ← Spring Data JPA interface (internal)
+│   ├── EnrollmentRepository.kt          ← JPA implementation of domain contract
 │   ├── DisbursementEntity.kt            ← JPA entity for disbursement table
-│   └── DisbursementRepository.kt        ← interface
+│   ├── DisbursementJpaRepository.kt     ← Spring Data JPA interface (internal)
+│   └── DisbursementRepository.kt        ← JPA implementation of domain contract
 │
 ├── service/
 │   ├── EnrollmentService.kt             ← interface
@@ -109,12 +113,14 @@ com.gov.sg.baby_bonus_enrollment
 - Contains enums and pure Kotlin data classes only — no JPA annotations, no Spring annotations, no framework dependencies
 - Grouped into sub-packages by bounded context: `domain/enrollment/` and `domain/disbursement/`
 - Each sub-package has a root data class (`Enrollment`, `Disbursement`) representing the domain concept — no persistence details
-- JPA entities live in `repository/` alongside the repository interface — named `*Entity` to distinguish from domain classes
+- Each sub-package owns its repository interface (`EnrollmentRepository`, `DisbursementRepository`) — the domain defines the contract, the repository layer fulfills it
+- JPA entities and implementations live in `repository/` — named `*Entity` and `*RepositoryImpl`
 ### Repository
 - Defined as interfaces extending `JpaRepository` — no implementation classes
 - Do not define custom exceptions at this layer
 - Spring `DataAccessException` subtypes bubble up; the controller layer catches unmapped ones and returns a generic 500
 - Repository tests use `@SpringBootTest` + `@Transactional` — `@DataJpaTest` does not exist in Spring Boot 4.x
+- Write tests against the domain-level repository interface (`EnrollmentRepository`, `DisbursementRepository`) — do not write separate tests for `*JpaRepository`; the JPA layer is covered implicitly
 ### Service
 - Defined as an interface + `Impl` class
 - Owns DTOs used as the contract between controller and service — these live in `service/dto/` and are named `*Dto`
@@ -143,6 +149,7 @@ com.gov.sg.baby_bonus_enrollment
 - Each subpackage owns its own exception in `external/<name>/exception/`
 - The service layer catches these exceptions and translates to domain exceptions
 - The controller layer never sees external exceptions directly
+- Return `null` for "not found" — it is an expected, normal response; throw an exception only for unexpected failures (network error, malformed response, timeout)
 ### Security
 - Package exists; internals TBD
 - All endpoints secured by default — nothing permitted without authentication unless explicitly allowlisted
