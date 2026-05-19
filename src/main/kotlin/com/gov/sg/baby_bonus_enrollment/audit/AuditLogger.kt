@@ -6,5 +6,7 @@ import org.springframework.stereotype.Component
 @Component
 class AuditLogger {
     private val log = LoggerFactory.getLogger(AuditLogger::class.java)
-    fun log(message: String) = log.info(message)
+    fun info(message: String) = log.info(message)
+    fun warn(message: String) = log.warn(message)
+    fun error(message: String) = log.error(message)
 }

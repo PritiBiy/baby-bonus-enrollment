@@ -59,16 +59,16 @@ class EnrollChildUseCase(
     }
 
     private fun auditEnrollmentSubmitted(childNric: Nric, parentNric: Nric) =
-        auditLogger.log("ENROLLMENT_SUBMITTED childNric=$childNric parentNric=$parentNric")
+        auditLogger.info("ENROLLMENT_SUBMITTED childNric=$childNric parentNric=$parentNric")
 
     private fun auditEligibilityPassed(childNric: Nric) =
-        auditLogger.log("ELIGIBILITY_PASSED childNric=$childNric")
+        auditLogger.info("ELIGIBILITY_PASSED childNric=$childNric")
 
     private fun auditEligibilityFailed(childNric: Nric, reason: String) =
-        auditLogger.log("ELIGIBILITY_FAILED childNric=$childNric reason=$reason")
+        auditLogger.warn("ELIGIBILITY_FAILED childNric=$childNric reason=$reason")
 
     private fun auditDisbursementInitiated(enrollmentId: UUID, amount: BigDecimal) =
-        auditLogger.log("DISBURSEMENT_INITIATED enrollmentId=$enrollmentId amount=$amount")
+        auditLogger.info("DISBURSEMENT_INITIATED enrollmentId=$enrollmentId amount=$amount")
 
     private fun checkEligibility(request: CreateEnrollmentDto) {
         val child = icaClient.findChild(request.childNric.value)
