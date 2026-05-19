@@ -47,4 +47,6 @@ This document describes how AI tools were used during the development of this se
 - `AuditLogger` in `audit/` accepts `Nric` parameters; `toString()` auto-masks in SLF4J format strings — no explicit masking call needed at each log site.
 - `CreateEnrollmentDto` updated to hold `Nric` instead of `String`; controller wraps the incoming string at the boundary; use case no longer needs the `mask()` helper.
 - MDC caller set in `ApiKeyFilter` after successful authentication; cleared in `finally` block; log pattern includes `%X{caller}` so every log line records the caller identity without threading it through the call stack.
+- `AuditLogger` refactored to a pure utility (`info/warn/error` methods, no domain imports) — domain-aware audit methods (`auditEnrollmentSubmitted` etc.) moved to private methods in `EnrollChildUseCase`; use case owns what to log, logger owns how to write it.
+- Log levels: eligibility failures and duplicates use `WARN` (recoverable business rejections); normal flow uses `INFO`; unexpected exceptions in `GlobalExceptionHandler` use `ERROR`.
 

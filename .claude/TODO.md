@@ -45,6 +45,8 @@ Tasks are ordered. Start each with a failing integration test — build everythi
 - [x] Log: disbursement initiated — enrollment ID, amount
 - [x] Verify no raw NRIC appears in any log output (enforced by `Nric` value class `toString()`)
 - [x] `Nric` typed value class introduced — `toString()` always returns masked form; type system prevents raw leaks
+- [x] `AuditLogger` refactored to utility (`info/warn/error`) — no domain knowledge; audit semantics moved to private methods in use case
+- [x] `GlobalExceptionHandler` logs ERROR via `AuditLogger` for unexpected exceptions (DB down etc.)
 - [x] All tests pass (31 tests green)
 
 ---
