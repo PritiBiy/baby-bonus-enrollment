@@ -9,19 +9,19 @@ Tasks are ordered. Start each with a failing integration test — build everythi
 - [x] Write failing integration test: `POST /api/v1/enrollments` → `201`, correct response shape, NRICs masked.
 - [x] Define `Enrollment` and `Disbursement` JPA entities
 - [x] Write migration scripts to create `enrollments` and `disbursements` tables
-- [ ] Need to add testcontainer tests for repository layer to verify JPA mappings and migrations
-- [ ] Create `EnrollmentRepository` and `DisbursementRepository`
-- [ ] Define `IcaClient` and `IroasClient` interfaces (`external` package)
-- [ ] Implement `IcaStubClient` and `IroasStubClient`
-- [ ] Load mock data from `mock-data/ica_children.json` and `mock-data/iroas_parents.json` at startup
-- [ ] Define `IDisbursementClient` interfaces (`external` package)
-- [ ] Define `DisbursementClient` to return DisbursementDto with generated ID, amount, and PROCESSED status immediately with a note to be changed for Prod implementation. Introduce enum with PENDING PROCESSED state. 
-- [ ] Implement `IcaStubClient` and `IroasStubClient`
-- [ ] Implement `EnrollmentService` — eligibility checks + synchronous stub disbursement
-- [ ] Implement `EnrollmentController` — `POST /api/v1/enrollments`
-- [ ] Define request/response DTOs with NRIC masking applied in response
-- [ ] Write unit tests: child not in ICA → 422, not a citizen → 422, parent not in IROAS → 422, duplicate → 409
-- [ ] All tests pass
+- [x] Need to add testcontainer tests for repository layer to verify JPA mappings and migrations - **NO NEED**
+- [x] Create `EnrollmentEntityRepository` and `DisbursementEntityRepository` (ports in domain; impls in repository)
+- [x] Write repository tests: save + field assertions via JpaRepository, findById, findByChildNric
+- [x] Define `IcaClient` and `IroasClient` interfaces (`external` package)
+- [x] Implement `MockIcaClient` and `MockIroasClient`; write tests for each
+- [x] Load mock data from `mock-data/ica_children.json` and `mock-data/iroas_parents.json` at startup
+- [x] Define `DisbursementClient` interface; implement `MockDisbursementClient`; write tests
+- [x] Implement `EnrollChildUseCase` — eligibility checks (fail-fast), save enrollment, initiate disbursement
+- [x] `EligibilityReason` enum with error messages; `EligibilityException` carries enum reason
+- [x] Write use case unit tests: all 5 eligibility/duplicate scenarios; `Clock.fixed` for deterministic timestamps
+- [ ] Implement `EnrollmentController` — wire to `EnrollChildUseCase`, return full `EnrollmentResponse`
+- [ ] Define response DTOs (`EnrollmentResponse`, `DisbursementResponse`) with NRIC masking
+- [ ] All tests pass (enable HTTP integration test)
 
 ---
 

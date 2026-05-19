@@ -55,9 +55,8 @@ com.gov.sg.baby_bonus_enrollment
 │   ├── DisbursementJpaRepository.kt     ← Spring Data JPA interface (internal)
 │   └── DisbursementRepository.kt        ← JPA implementation of domain contract
 │
-├── service/
-│   ├── EnrollmentService.kt             ← interface
-│   ├── EnrollmentServiceImpl.kt
+├── usecase/
+│   ├── EnrollChildUseCase.kt            ← one class per use case, fun execute(...)
 │   ├── dto/
 │   │   ├── CreateEnrollmentDto.kt
 │   │   └── EnrollmentDto.kt
@@ -121,20 +120,18 @@ com.gov.sg.baby_bonus_enrollment
 - Spring `DataAccessException` subtypes bubble up; the controller layer catches unmapped ones and returns a generic 500
 - Repository tests use `@SpringBootTest` + `@Transactional` — `@DataJpaTest` does not exist in Spring Boot 4.x
 - Write tests against the domain-level repository interface (`EnrollmentRepository`, `DisbursementRepository`) — do not write separate tests for `*JpaRepository`; the JPA layer is covered implicitly
-### Service
-- Defined as an interface + `Impl` class
-- Owns DTOs used as the contract between controller and service — these live in `service/dto/` and are named `*Dto`
-- Controller maps `Request` → service `Dto` before calling the service
-- Service maps domain entities → `Dto` before returning to the controller
-- Owns domain exceptions in `service/exception/`
-- Catches external client exceptions and translates them to domain exceptions — never lets external exceptions propagate upward
+### Use Case
+- One class per use case — no interface, no `Impl` suffix
+- Each class has a single `execute(...)` method
+- Owns DTOs in `usecase/dto/` — controller maps `Request` → `Dto`, use case returns `Dto`, controller maps to `Response`
+- Owns exceptions in `usecase/exception/`
+- Catches external client exceptions and translates to domain exceptions — never lets external exceptions propagate upward
 - Never imports anything from `controller/`
-- [PENDING]`@Transactional` belongs here on the method that owns the unit of work (Ideally this is repository concern, so it should not be in the service.Need to rethink on this.)
 ### Controller
-- Handles HTTP only: parse input, map to service DTO, call service, map result to response
+- Handles HTTP only: parse input, map to use case DTO, call use case, map result to response
 - No business logic
-- Maps `Request` → service `Dto` — never passes raw request objects into the service
-- Maps service `Dto` → `Response` — never exposes entities or service DTOs in responses
+- Maps `Request` → use case `Dto` — never passes raw request objects into the use case
+- Maps use case `Dto` → `Response` — never exposes entities or use case DTOs in responses
 - `Request` and `Response` classes live in `controller/request/` and `controller/response/` — never in `domain/`
 - `Request` classes must not import from `domain/` — use `String` for fields that map to domain enums; the controller performs the mapping
 - Owns `GlobalExceptionHandler` in `controller/exception/`
@@ -242,10 +239,7 @@ Fail fast — return the first failing condition as a `422` with the exact messa
 
 ## Testing
 
-- **Unit tests**: service layer — happy path + each distinct error case; mock repositories
-- **Integration test**: at least one full HTTP flow through `@SpringBootTest` / `MockMvc`; verifies status code, response shape, and NRIC masking
-- Test names should read as sentences describing behaviour, not implementation
-- Do not test Spring wiring or framework behaviour — test your code
+All testing conventions, patterns, and layer-specific rules are in `.claude/commands/write-tests.md`. Read that file before writing any test.
 
 ---
 

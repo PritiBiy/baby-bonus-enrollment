@@ -24,7 +24,7 @@ For each feature, follow this order:
 1. HTTP integration test       ← written FIRST, @Disabled — locks the contract
 2. Migration (SQL script)      ← schema before entity
 3. Repository test             ← @DataJpaTest, verifies mappings and query methods
-4. Service unit test           ← plain JUnit, mocked dependencies
+4. Use case unit test          ← plain JUnit, mocked dependencies
 5. Enable HTTP integration test ← remove @Disabled once layers 2–4 are green
 ```
 
@@ -108,15 +108,18 @@ class EnrollmentRepositoryTest {
 }
 ```
 
-**Keep it to one test per repository** — save a domain object with all fields set, reload by ID, assert with data class `equals`. That single test covers mappings, column types, nullable constraints, and enum persistence in one pass.
+**Test structure for each repository:**
+- **`save` test** — autowire both the domain repository and `*JpaRepository`; call `repository.save(domain)`; assert by fetching via `jpaRepository.findById(...).orElseThrow()` and comparing entity fields directly. Do not call `toDomain()` in this assertion — that would hide conversion bugs.
+- **`findById` test** — call `repository.findById(id)`; assert using data class `equals()`. This verifies the full round-trip through `toDomain()`.
+- **`findByChildNric` / other query tests** — save several domain objects, call the query method, assert the returned list with data class `equals()`.
 
-**Do not write tests for `*JpaRepository` interfaces.** Test only through the domain-level repository (`EnrollmentRepository`, `DisbursementRepository`). The JPA layer is covered implicitly.
+**Do not write tests for `*JpaRepository` interfaces directly.** They are tested implicitly through the domain repository. The `*JpaRepository` is only autowired in the `save` test to verify persistence at the entity level.
 
 **Side-effect assertions live here.** If you want to verify a record was created as a result of an operation, assert it in a repository test — not in the HTTP integration test.
 
 ---
 
-## Service Unit Test
+## Use Case Unit Test
 
 **When to write:** After repository test passes, before enabling the HTTP integration test.
 
@@ -124,15 +127,15 @@ class EnrollmentRepositoryTest {
 
 ```kotlin
 @ExtendWith(MockitoExtension::class)
-class EnrollmentServiceTest {
+class EnrollChildUseCaseTest {
 
-    @Mock lateinit var enrollmentRepository: EnrollmentRepository
-    @Mock lateinit var disbursementRepository: DisbursementRepository
+    @Mock lateinit var enrollmentRepository: EnrollmentEntityRepository
+    @Mock lateinit var disbursementRepository: DisbursementEntityRepository
     @Mock lateinit var icaClient: IcaClient
     @Mock lateinit var iroasClient: IroasClient
     @Mock lateinit var disbursementClient: DisbursementClient
 
-    @InjectMocks lateinit var service: EnrollmentServiceImpl
+    @InjectMocks lateinit var useCase: EnrollChildUseCase
 }
 ```
 
@@ -144,11 +147,10 @@ class EnrollmentServiceTest {
   fun `enrolling a child who is not a Singapore citizen throws EligibilityException`()
   fun `enrolling a child with an existing active enrollment throws DuplicateEnrollmentException`()
   ```
-- Assert exceptions with exact message from `.claude/docs/api-contract.md`:
+- Assert exceptions with the enum reason and/or message from `.claude/docs/api-contract.md`:
   ```kotlin
-  assertThatThrownBy { service.enroll(request) }
-      .isInstanceOf(EligibilityException::class.java)
-      .hasMessage("Child is not a Singapore Citizen")
+  val exception = shouldThrow<EligibilityException> { useCase.execute(request) }
+  exception.reason shouldBe EligibilityReason.NOT_SINGAPORE_CITIZEN
   ```
 
 ---
@@ -194,10 +196,10 @@ src/test/kotlin/com/gov/sg/baby_bonus_enrollment/
 ├── controller/
 │   └── EnrollmentControllerTest.kt      ← @Disabled until all lower layers pass
 ├── repository/
-│   ├── EnrollmentRepositoryTest.kt
-│   └── DisbursementRepositoryTest.kt
-└── service/
-    └── EnrollmentServiceTest.kt
+│   ├── EnrollmentEntityRepositoryTest.kt
+│   └── DisbursementEntityRepositoryTest.kt
+└── usecase/
+    └── EnrollChildUseCaseTest.kt
 ```
 
 ---

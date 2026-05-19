@@ -1,14 +1,14 @@
 package com.gov.sg.baby_bonus_enrollment.repository
 
 import com.gov.sg.baby_bonus_enrollment.domain.enrollment.Enrollment
-import com.gov.sg.baby_bonus_enrollment.domain.enrollment.EnrollmentRepository
+import com.gov.sg.baby_bonus_enrollment.domain.enrollment.EnrollmentEntityRepository
 import org.springframework.stereotype.Repository
 import java.util.UUID
 
 @Repository
-class EnrollmentRepositoryImpl(
+class EnrollmentEntityRepositoryImpl(
     private val jpaRepository: EnrollmentJpaRepository
-) : EnrollmentRepository {
+) : EnrollmentEntityRepository {
 
     override fun save(enrollment: Enrollment): Enrollment =
         jpaRepository.save(EnrollmentEntity.from(enrollment)).toDomain()

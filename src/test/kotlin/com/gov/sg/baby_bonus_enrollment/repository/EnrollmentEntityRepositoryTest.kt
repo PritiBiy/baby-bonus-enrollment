@@ -1,35 +1,42 @@
 package com.gov.sg.baby_bonus_enrollment.repository
 
 import com.gov.sg.baby_bonus_enrollment.domain.enrollment.Enrollment
-import com.gov.sg.baby_bonus_enrollment.domain.enrollment.EnrollmentRepository
+import com.gov.sg.baby_bonus_enrollment.domain.enrollment.EnrollmentEntityRepository
 import com.gov.sg.baby_bonus_enrollment.domain.enrollment.EnrollmentStatus
 import com.gov.sg.baby_bonus_enrollment.domain.enrollment.Relationship
+import io.kotest.matchers.shouldBe
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import java.time.Instant
-import kotlin.test.assertEquals
-import kotlin.test.assertNull
+import java.util.UUID
 
 @SpringBootTest
 @Transactional
-class EnrollmentRepositoryTest {
+class EnrollmentEntityRepositoryTest {
 
-    @Autowired private lateinit var repository: EnrollmentRepository
+    @Autowired private lateinit var repository: EnrollmentEntityRepository
+    @Autowired private lateinit var jpaRepository: EnrollmentJpaRepository
 
     @Test
-    fun `save and findById returns saved enrollment`() {
+    fun `save persists enrollment fields to database`() {
         val enrollment = enrollment()
 
         repository.save(enrollment)
 
-        assertEquals(enrollment, repository.findById(enrollment.id))
+        val entity = jpaRepository.findById(enrollment.id).orElseThrow()
+        entity.id shouldBe enrollment.id
+        entity.childNric shouldBe enrollment.childNric
+        entity.parentNric shouldBe enrollment.parentNric
+        entity.relationship shouldBe enrollment.relationship
+        entity.status shouldBe enrollment.status
+        entity.enrolledAt shouldBe enrollment.enrolledAt
     }
 
     @Test
     fun `findById returns null for unknown id`() {
-        assertNull(repository.findById(java.util.UUID.randomUUID()))
+        repository.findById(UUID.randomUUID()) shouldBe null
     }
 
     @Test
@@ -41,12 +48,12 @@ class EnrollmentRepositoryTest {
 
         val results = repository.findByChildNric("T2400001A")
 
-        assertEquals(listOf(first, second), results)
+        results shouldBe listOf(first, second)
     }
 
     @Test
     fun `findByChildNric returns empty list when no enrollment exists`() {
-        assertEquals(emptyList(), repository.findByChildNric("X9999999Z"))
+        repository.findByChildNric("X9999999Z") shouldBe emptyList()
     }
 
     private fun enrollment(childNric: String = "T2400001A") = Enrollment(

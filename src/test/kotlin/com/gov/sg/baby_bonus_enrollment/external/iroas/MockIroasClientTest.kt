@@ -1,11 +1,10 @@
 package com.gov.sg.baby_bonus_enrollment.external.iroas
 
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 
 @SpringBootTest
 class MockIroasClientTest {
@@ -16,13 +15,13 @@ class MockIroasClientTest {
     fun `returns parent record for known NRIC`() {
         val parent = iroasClient.findParent("S8001234A")
 
-        assertNotNull(parent)
-        assertEquals("S8001234A", parent.nric)
-        assertEquals("Tan Ah Kow", parent.name)
+        parent shouldNotBe null
+        parent!!.nric shouldBe "S8001234A"
+        parent.name shouldBe "Tan Ah Kow"
     }
 
     @Test
     fun `returns null for unknown NRIC`() {
-        assertNull(iroasClient.findParent("X9999999Z"))
+        iroasClient.findParent("X9999999Z") shouldBe null
     }
 }

@@ -1,9 +1,10 @@
 package com.gov.sg.baby_bonus_enrollment.repository
 
 import com.gov.sg.baby_bonus_enrollment.domain.disbursement.Disbursement
-import com.gov.sg.baby_bonus_enrollment.domain.disbursement.DisbursementRepository
+import com.gov.sg.baby_bonus_enrollment.domain.disbursement.DisbursementEntityRepository
 import com.gov.sg.baby_bonus_enrollment.domain.disbursement.DisbursementStatus
 import com.gov.sg.baby_bonus_enrollment.domain.disbursement.DisbursementType
+import io.kotest.matchers.shouldBe
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -11,27 +12,32 @@ import org.springframework.boot.test.context.SpringBootTest
 import java.math.BigDecimal
 import java.time.Instant
 import java.util.UUID
-import kotlin.test.assertEquals
-import kotlin.test.assertNull
 
 @SpringBootTest
 @Transactional
-class DisbursementRepositoryTest {
+class DisbursementEntityRepositoryTest {
 
-    @Autowired private lateinit var repository: DisbursementRepository
+    @Autowired private lateinit var repository: DisbursementEntityRepository
+    @Autowired private lateinit var jpaRepository: DisbursementJpaRepository
 
     @Test
-    fun `save and findById returns saved disbursement`() {
+    fun `save persists disbursement fields to database`() {
         val disbursement = disbursement()
 
         repository.save(disbursement)
 
-        assertEquals(disbursement, repository.findById(disbursement.id))
+        val entity = jpaRepository.findById(disbursement.id).orElseThrow()
+        entity.id shouldBe disbursement.id
+        entity.enrollmentId shouldBe disbursement.enrollmentId
+        entity.type shouldBe disbursement.type
+        entity.amount shouldBe disbursement.amount
+        entity.status shouldBe disbursement.status
+        entity.processedAt shouldBe disbursement.processedAt
     }
 
     @Test
     fun `findById returns null for unknown id`() {
-        assertNull(repository.findById(UUID.randomUUID()))
+        repository.findById(UUID.randomUUID()) shouldBe null
     }
 
     private fun disbursement() = Disbursement(

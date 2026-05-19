@@ -15,7 +15,7 @@ This document describes how AI tools were used during the development of this se
 - Rephrased writings in different files such as reasoning in scope.md, README.md sections 
 - Took help to align the package structure after giving rules to come up with the structure and layered rules.
 
-### Task 1 — POST /api/v1/enrollments (sessions 2–3)
+### Task 1 — POST /api/v1/enrollments (sessions 2–4)
 
 - Used CC in plan mode to scaffold integration test, migration, domain types, and external client interfaces; reworked test to use `MockMvc.perform()` after `MockMvcWebTestClient` failed due to missing reactive streams dependency.
 - CC initially put JPA annotations (`@Entity`, `@Table`) in the domain layer; corrected to keep domain as pure data classes and move JPA entities to `repository/` as `*Entity` — used as thinking partner to settle the right separation.
@@ -25,4 +25,8 @@ This document describes how AI tools were used during the development of this se
 - Used as thinking partner to settle domain vs repository boundary: domain owns pure data classes and repository interfaces (ports-and-adapters); JPA entities and `*RepositoryImpl` stay in repository; CC initially placed both interface and impl in repository, corrected after discussion.
 - `createdAt` removed from domain `Enrollment` after discussion — identified as a persistence concern belonging to the entity only; `enrolledAt` kept as it represents a business event timestamp.
 - Confirmed null-return-for-not-found rule applies even though repository interfaces now live in domain — service layer decides whether not-found is an error.
+- Switched from service layer pattern to use case pattern (`EnrollChildUseCase` with `execute()`); CC initially scaffolded a service interface + impl, corrected to one class per use case with no interface.
+- `EligibilityReason` enum introduced to carry error messages for eligibility failures; CC initially used raw strings in `EligibilityException`, corrected to enum so the reason is type-safe and tests assert `exception.reason` rather than a string.
+- `Clock` injected as constructor dependency into `EnrollChildUseCase` so tests can control time with `Clock.fixed(...)`; CC initially placed `Clock` as a `@Bean` only — clarified that unit tests construct the use case directly with a fixed clock, the `@Bean` wires it only for the Spring context.
+- Migrated all test assertions from AssertJ / `kotlin.test` to Kotest (`shouldBe`, `shouldNotBe`, `shouldThrow`).
 
