@@ -36,3 +36,8 @@ This document describes how AI tools were used during the development of this se
 - `@NotBlank` validation added to `EnrollmentRequest` with `spring-boot-starter-validation`; `MethodArgumentNotValidException` handler added to `GlobalExceptionHandler` to return the field's constraint message as the error body.
 - `Relationship.valueOf("INVALID")` produces a JVM-verbose message; wrapped in try/catch in controller to throw `IllegalArgumentException("Invalid value for relationship")` with the exact message from the API contract.
 
+### Task 4 — X-API-Key Authentication (session 5)
+
+- CC initially wrote `api.key=change-me` hardcoded in `application.properties`; corrected to read from `API_KEY` env var (`api.key=${API_KEY}`) with no fallback — startup fails if the env var is not set.
+- `src/test/resources/application.properties` sets `api.key=test-api-key` so tests run without the env var; production config is separate.
+

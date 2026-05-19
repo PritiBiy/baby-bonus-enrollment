@@ -65,6 +65,7 @@ class EnrollmentControllerTest {
         val result = mockMvc.perform(
             post("/api/v1/enrollments")
                 .contentType(MediaType.APPLICATION_JSON)
+                .header("X-API-Key", API_KEY)
                 .content("""{"childNric": "T2400001A", "parentNric": "S8001234A", "relationship": "FATHER"}""")
         )
             .andExpect(status().isCreated)
@@ -151,10 +152,10 @@ class EnrollmentControllerTest {
 
             val request = """{"childNric": "T2400003C", "parentNric": "S8001234A", "relationship": "FATHER"}"""
 
-            mockMvc.perform(post("/api/v1/enrollments").contentType(MediaType.APPLICATION_JSON).content(request))
+            mockMvc.perform(post("/api/v1/enrollments").contentType(MediaType.APPLICATION_JSON).header("X-API-Key", API_KEY).content(request))
                 .andExpect(status().isCreated)
 
-            val result = mockMvc.perform(post("/api/v1/enrollments").contentType(MediaType.APPLICATION_JSON).content(request))
+            val result = mockMvc.perform(post("/api/v1/enrollments").contentType(MediaType.APPLICATION_JSON).header("X-API-Key", API_KEY).content(request))
                 .andExpect(status().isConflict)
                 .andReturn()
 
@@ -171,6 +172,7 @@ class EnrollmentControllerTest {
             val result = mockMvc.perform(
                 post("/api/v1/enrollments")
                     .contentType(MediaType.APPLICATION_JSON)
+                    .header("X-API-Key", API_KEY)
                     .content("""{"childNric": "T2400001A", "parentNric": "S8001234A", "relationship": "INVALID"}""")
             )
                 .andExpect(status().isBadRequest)
@@ -185,6 +187,7 @@ class EnrollmentControllerTest {
             val result = mockMvc.perform(
                 post("/api/v1/enrollments")
                     .contentType(MediaType.APPLICATION_JSON)
+                    .header("X-API-Key", API_KEY)
                     .content("""{"childNric": "", "parentNric": "S8001234A", "relationship": "FATHER"}""")
             )
                 .andExpect(status().isBadRequest)
@@ -199,6 +202,7 @@ class EnrollmentControllerTest {
             val result = mockMvc.perform(
                 post("/api/v1/enrollments")
                     .contentType(MediaType.APPLICATION_JSON)
+                    .header("X-API-Key", API_KEY)
                     .content("""{"childNric": "T2400001A", "parentNric": "", "relationship": "FATHER"}""")
             )
                 .andExpect(status().isBadRequest)
@@ -209,7 +213,45 @@ class EnrollmentControllerTest {
         }
     }
 
+    @Nested
+    inner class Unauthorized {
+
+        @Test
+        fun `returns 401 when X-API-Key header is missing`() {
+            val result = mockMvc.perform(
+                post("/api/v1/enrollments")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""{"childNric": "T2400001A", "parentNric": "S8001234A", "relationship": "FATHER"}""")
+            )
+                .andExpect(status().isUnauthorized)
+                .andReturn()
+
+            objectMapper.readValue<ErrorResponse>(result.response.contentAsString) shouldBe
+                ErrorResponse("Unauthorised")
+        }
+
+        @Test
+        fun `returns 401 when X-API-Key header is invalid`() {
+            val result = mockMvc.perform(
+                post("/api/v1/enrollments")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("X-API-Key", "wrong-key")
+                    .content("""{"childNric": "T2400001A", "parentNric": "S8001234A", "relationship": "FATHER"}""")
+            )
+                .andExpect(status().isUnauthorized)
+                .andReturn()
+
+            objectMapper.readValue<ErrorResponse>(result.response.contentAsString) shouldBe
+                ErrorResponse("Unauthorised")
+        }
+    }
+
     private fun enrollmentRequest() = post("/api/v1/enrollments")
         .contentType(MediaType.APPLICATION_JSON)
+        .header("X-API-Key", API_KEY)
         .content("""{"childNric": "T2400001A", "parentNric": "S8001234A", "relationship": "FATHER"}""")
+
+    companion object {
+        private const val API_KEY = "test-api-key"
+    }
 }

@@ -50,10 +50,10 @@ Tasks are ordered. Start each with a failing integration test — build everythi
 
 ### Task 4 — X-API-Key Authentication
 
-- [ ] Write failing integration test: missing `X-API-Key` → `401`
-- [ ] Write failing integration test: invalid `X-API-Key` → `401`
-- [ ] Implement API key filter; key read from `application.properties`
-- [ ] All tests pass
+- [x] Write failing integration test: missing `X-API-Key` → `401`
+- [x] Write failing integration test: invalid `X-API-Key` → `401`
+- [x] Implement `ApiKeyFilter`; key read from `API_KEY` env var — startup fails if not set
+- [x] All tests pass (29 tests green)
 
 ---
 
