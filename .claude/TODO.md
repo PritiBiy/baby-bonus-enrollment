@@ -63,10 +63,10 @@ Tasks are ordered. Start each with a failing integration test — build everythi
 
 ### Task 5 — Swagger / OpenAPI
 
-- [ ] Add `springdoc-openapi` dependency
-- [ ] Annotate controller and DTOs
-- [ ] Verify Swagger UI loads at `/swagger-ui.html`
-- [ ] Document `X-API-Key` as a security scheme in the spec
+- [x] Add `springdoc-openapi` dependency
+- [x] Annotate controller with `@Tag` and `@Operation`
+- [x] Verify Swagger UI loads at `/swagger-ui.html`
+- [x] Document `X-API-Key` as a security scheme in the spec
 
 ---
 
@@ -112,6 +112,7 @@ Tasks are ordered. Start each with a failing integration test — build everythi
 - [ ] Create precommit hook check if cc has built in hooks for this. 
 - [ ] For Disbursement 3000, create constant and give meaningful name.
 - [ ] checkEligibility can audit instead of try catch block, its redundant 
-- 
+- [ ] Builders for test data 
+- [ ]  
 
 ---

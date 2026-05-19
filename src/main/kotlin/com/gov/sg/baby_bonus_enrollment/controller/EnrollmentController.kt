@@ -12,6 +12,8 @@ import com.gov.sg.baby_bonus_enrollment.usecase.GetEnrollmentsByChildNricUseCase
 import com.gov.sg.baby_bonus_enrollment.usecase.MarkEnrollmentIneligibleUseCase
 import com.gov.sg.baby_bonus_enrollment.usecase.dto.CreateEnrollmentDto
 import com.gov.sg.baby_bonus_enrollment.usecase.dto.EnrollmentDto
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
+@Tag(name = "Enrollments")
 @RestController
 @RequestMapping("/api/v1/enrollments")
 class EnrollmentController(
@@ -34,6 +37,7 @@ class EnrollmentController(
     private val markEnrollmentIneligibleUseCase: MarkEnrollmentIneligibleUseCase
 ) {
 
+    @Operation(summary = "Submit an enrollment application")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun enroll(@Valid @RequestBody request: EnrollmentRequest): EnrollmentResponse {
@@ -50,14 +54,17 @@ class EnrollmentController(
         return enrollChildUseCase.execute(dto).toResponse()
     }
 
+    @Operation(summary = "List all enrollments for a child")
     @GetMapping
     fun listByChildNric(@RequestParam childNric: String): List<EnrollmentResponse> =
         getEnrollmentsByChildNricUseCase.execute(childNric).map { it.toResponse() }
 
+    @Operation(summary = "Retrieve an enrollment by enrollment ID")
     @GetMapping("/{id}")
     fun getById(@PathVariable id: UUID): EnrollmentResponse =
         getEnrollmentByIdUseCase.execute(id).toResponse()
 
+    @Operation(summary = "Override enrollment status to INELIGIBLE by enrollment ID")
     @PatchMapping("/{id}/ineligible")
     fun markIneligible(
         @PathVariable id: UUID,
