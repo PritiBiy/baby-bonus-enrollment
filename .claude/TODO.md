@@ -23,8 +23,8 @@ Tasks are ordered. Start each with a failing integration test — build everythi
 - [x] Define response DTOs (`EnrollmentResponse`, `DisbursementResponse`) with NRIC masking
 - [x] `GlobalExceptionHandler` — `EligibilityException` → 422, `DuplicateEnrollmentException` → 409, `IllegalArgumentException` → 400, catch-all → 500
 - [x] All tests pass (HTTP integration test enabled, 26 tests green)
-- [ ] Refactor use case to small methods for each step (validate input, eligibility checks, save enrollment, initiate disbursement) to improve readability and testability
-- [ ] Add TODO for MockDisbursementClient that this is temporary to return immediate success; in production this would be an async call to an external service
+- [x] Refactor use case to small methods for each step (checkEligibility, saveEnrollment, initiateDisbursement, toDto)
+- [x] Add TODO on MockDisbursementClient — stub returns PROCESSED immediately; production would be async
 
 ---
 

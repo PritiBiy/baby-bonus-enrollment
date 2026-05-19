@@ -8,6 +8,7 @@ import com.gov.sg.baby_bonus_enrollment.domain.enrollment.Enrollment
 import com.gov.sg.baby_bonus_enrollment.domain.enrollment.EnrollmentEntityRepository
 import com.gov.sg.baby_bonus_enrollment.domain.enrollment.EnrollmentStatus
 import com.gov.sg.baby_bonus_enrollment.external.disbursement.DisbursementClient
+import com.gov.sg.baby_bonus_enrollment.external.disbursement.DisbursementResult
 import com.gov.sg.baby_bonus_enrollment.external.ica.IcaClient
 import com.gov.sg.baby_bonus_enrollment.external.iroas.IroasClient
 import com.gov.sg.baby_bonus_enrollment.usecase.dto.CreateEnrollmentDto
@@ -31,6 +32,13 @@ class EnrollChildUseCase(
     private val clock: Clock
 ) {
     fun execute(request: CreateEnrollmentDto): EnrollmentDto {
+        checkEligibility(request)
+        val enrollment = saveEnrollment(request)
+        val disbursement = initiateDisbursement(enrollment)
+        return toDto(enrollment, disbursement)
+    }
+
+    private fun checkEligibility(request: CreateEnrollmentDto) {
         val child = icaClient.findChild(request.childNric)
             ?: throw EligibilityException(EligibilityReason.CHILD_NOT_FOUND)
 
@@ -45,8 +53,10 @@ class EnrollChildUseCase(
         if (existing.any { it.status == EnrollmentStatus.ENROLLED }) {
             throw DuplicateEnrollmentException("Child already has an active enrollment")
         }
+    }
 
-        val enrollment = enrollmentRepository.save(
+    private fun saveEnrollment(request: CreateEnrollmentDto): Enrollment =
+        enrollmentRepository.save(
             Enrollment(
                 childNric = request.childNric,
                 parentNric = request.parentNric,
@@ -56,9 +66,10 @@ class EnrollChildUseCase(
             )
         )
 
-        val result = disbursementClient.initiate(enrollment.id, DisbursementType.CASH_GIFT, BigDecimal("3000.00"))
-
-        val disbursement = disbursementRepository.save(
+    private fun initiateDisbursement(enrollment: Enrollment): Disbursement {
+        val result: DisbursementResult =
+            disbursementClient.initiate(enrollment.id, DisbursementType.CASH_GIFT, BigDecimal("3000.00"))
+        return disbursementRepository.save(
             Disbursement(
                 id = result.disbursementId,
                 enrollmentId = enrollment.id,
@@ -68,8 +79,10 @@ class EnrollChildUseCase(
                 processedAt = result.processedAt
             )
         )
+    }
 
-        return EnrollmentDto(
+    private fun toDto(enrollment: Enrollment, disbursement: Disbursement): EnrollmentDto =
+        EnrollmentDto(
             id = enrollment.id,
             childNric = mask(enrollment.childNric),
             parentNric = mask(enrollment.parentNric),
@@ -84,8 +97,6 @@ class EnrollChildUseCase(
                 processedAt = disbursement.processedAt
             )
         )
-    }
 
     private fun mask(nric: String) = nric.take(4) + "****" + nric.last()
 }
-

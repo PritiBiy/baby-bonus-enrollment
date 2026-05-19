@@ -7,6 +7,8 @@ import java.math.BigDecimal
 import java.time.Instant
 import java.util.UUID
 
+// TODO: In production, disbursement is initiated asynchronously via an external service.
+//       This stub returns PROCESSED immediately to satisfy the synchronous scope of this implementation.
 @Component
 class MockDisbursementClient : DisbursementClient {
 
