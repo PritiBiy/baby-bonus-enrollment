@@ -1,6 +1,6 @@
 package com.gov.sg.baby_bonus_enrollment.external.disbursement
 
-import com.gov.sg.baby_bonus_enrollment.domain.DisbursementStatus
+import com.gov.sg.baby_bonus_enrollment.domain.disbursement.DisbursementStatus
 import java.time.Instant
 import java.util.UUID
 

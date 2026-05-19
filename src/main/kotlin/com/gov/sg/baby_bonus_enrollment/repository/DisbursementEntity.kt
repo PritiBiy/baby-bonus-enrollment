@@ -1,5 +1,7 @@
-package com.gov.sg.baby_bonus_enrollment.domain
+package com.gov.sg.baby_bonus_enrollment.repository
 
+import com.gov.sg.baby_bonus_enrollment.domain.disbursement.DisbursementStatus
+import com.gov.sg.baby_bonus_enrollment.domain.disbursement.DisbursementType
 import jakarta.persistence.*
 import java.math.BigDecimal
 import java.time.Instant
@@ -7,7 +9,7 @@ import java.util.UUID
 
 @Entity
 @Table(name = "disbursement")
-class Disbursement(
+class DisbursementEntity(
     @Id
     val id: UUID = UUID.randomUUID(),
 

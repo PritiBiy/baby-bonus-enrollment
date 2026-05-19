@@ -1,6 +1,6 @@
 package com.gov.sg.baby_bonus_enrollment.external.ica
 
-import com.gov.sg.baby_bonus_enrollment.domain.Citizenship
+import com.gov.sg.baby_bonus_enrollment.domain.enrollment.Citizenship
 import java.time.LocalDate
 
 data class ChildRecord(

@@ -1,4 +1,4 @@
-package com.gov.sg.baby_bonus_enrollment.domain
+package com.gov.sg.baby_bonus_enrollment.domain.enrollment
 
 enum class Relationship {
     FATHER,

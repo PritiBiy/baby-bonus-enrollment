@@ -1,12 +1,14 @@
-package com.gov.sg.baby_bonus_enrollment.domain
+package com.gov.sg.baby_bonus_enrollment.repository
 
+import com.gov.sg.baby_bonus_enrollment.domain.enrollment.EnrollmentStatus
+import com.gov.sg.baby_bonus_enrollment.domain.enrollment.Relationship
 import jakarta.persistence.*
 import java.time.Instant
 import java.util.UUID
 
 @Entity
 @Table(name = "enrollment")
-class Enrollment(
+class EnrollmentEntity(
     @Id
     val id: UUID = UUID.randomUUID(),
 

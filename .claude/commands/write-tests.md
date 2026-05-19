@@ -92,32 +92,23 @@ CREATE TABLE enrollment (
 
 **When to write:** After migration exists, before service.
 
-**Purpose:** Verify JPA mappings, column types, nullable constraints, enum persistence, and custom query methods.
+**Purpose:** Verify JPA mappings, column types, nullable constraints, and enum persistence.
 
-**No TestContainers needed.** H2 is the actual runtime database for this service — not a substitute for a different production DB. `@DataJpaTest` applies `schema.sql` and provides a clean in-memory H2 instance per test. Adding TestContainers would spin up a containerised H2 with no added value. Revisit if the project migrates to PostgreSQL.
+**`@DataJpaTest` does not exist in Spring Boot 4.x.** Use `@SpringBootTest` + `@Transactional` instead. The `@Transactional` annotation causes each test to roll back automatically, providing isolation. H2 is the actual runtime database — no TestContainers needed.
 
 ```kotlin
-@DataJpaTest
+@SpringBootTest
+@Transactional
 class EnrollmentRepositoryTest {
 
-    @Autowired lateinit var enrollmentRepository: EnrollmentRepository
+    @Autowired lateinit var repository: EnrollmentRepository
 
     @Test
     fun `saves and reloads an enrollment with all fields intact`() { ... }
-
-    @Test
-    fun `finds enrollments by child NRIC`() { ... }
-
-    @Test
-    fun `returns empty list when no enrollment exists for child NRIC`() { ... }
 }
 ```
 
-**Assert:**
-- Fields persist and reload with correct values and types
-- Nullable fields accept null (`enrolledAt`, `reason`)
-- Enum columns map correctly (`status`, `relationship`)
-- Custom query methods return correct results
+**Keep it to one test per repository** — save an entity with all fields set, reload by ID, assert each field. That single test covers mappings, column types, nullable constraints, and enum persistence in one pass.
 
 **Side-effect assertions live here.** If you want to verify a record was created as a result of an operation, assert it in a repository test — not in the HTTP integration test.
 

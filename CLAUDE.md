@@ -31,20 +31,24 @@ Kotlin + Spring Boot service handling Baby Bonus enrollment applications. Checks
 ## Package structure
 
 ```
-gov.sg.mof.babybonus.enrollment
-├── BabyBonusApplication.kt
+com.gov.sg.baby_bonus_enrollment
+├── BabyBonusEnrollmentApplication.kt
 │
 ├── domain/
-│   ├── EnrollmentEntity.kt
-│   ├── DisbursementEntity.kt
-│   ├── Citizenship.kt
-│   ├── Relationship.kt
-│   ├── EnrollmentStatus.kt
-│   ├── DisbursementType.kt
-│   └── DisbursementStatus.kt
+│   ├── enrollment/
+│   │   ├── Enrollment.kt                ← pure data class, no JPA
+│   │   ├── Citizenship.kt
+│   │   ├── Relationship.kt
+│   │   └── EnrollmentStatus.kt
+│   └── disbursement/
+│       ├── Disbursement.kt              ← pure data class, no JPA
+│       ├── DisbursementType.kt
+│       └── DisbursementStatus.kt
 │
 ├── repository/
+│   ├── EnrollmentEntity.kt              ← JPA entity for enrollment table
 │   ├── EnrollmentRepository.kt          ← interface
+│   ├── DisbursementEntity.kt            ← JPA entity for disbursement table
 │   └── DisbursementRepository.kt        ← interface
 │
 ├── service/
@@ -102,13 +106,15 @@ gov.sg.mof.babybonus.enrollment
 ## Layer Rules
 
 ### Domain
-- Contains JPA entities and enums only
-- No business logic, no Spring annotations beyond JPA mapping
-- Flat structure — no sub-packages for entities vs enums
+- Contains enums and pure Kotlin data classes only — no JPA annotations, no Spring annotations, no framework dependencies
+- Grouped into sub-packages by bounded context: `domain/enrollment/` and `domain/disbursement/`
+- Each sub-package has a root data class (`Enrollment`, `Disbursement`) representing the domain concept — no persistence details
+- JPA entities live in `repository/` alongside the repository interface — named `*Entity` to distinguish from domain classes
 ### Repository
 - Defined as interfaces extending `JpaRepository` — no implementation classes
 - Do not define custom exceptions at this layer
 - Spring `DataAccessException` subtypes bubble up; the controller layer catches unmapped ones and returns a generic 500
+- Repository tests use `@SpringBootTest` + `@Transactional` — `@DataJpaTest` does not exist in Spring Boot 4.x
 ### Service
 - Defined as an interface + `Impl` class
 - Owns DTOs used as the contract between controller and service — these live in `service/dto/` and are named `*Dto`

@@ -1,6 +1,6 @@
 package com.gov.sg.baby_bonus_enrollment.external.disbursement
 
-import com.gov.sg.baby_bonus_enrollment.domain.DisbursementType
+import com.gov.sg.baby_bonus_enrollment.domain.disbursement.DisbursementType
 import java.math.BigDecimal
 import java.util.UUID
 

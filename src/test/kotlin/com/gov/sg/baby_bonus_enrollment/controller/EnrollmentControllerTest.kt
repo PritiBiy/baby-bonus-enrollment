@@ -1,9 +1,9 @@
 package com.gov.sg.baby_bonus_enrollment.controller
 
 import com.gov.sg.baby_bonus_enrollment.TestResourceReader
-import com.gov.sg.baby_bonus_enrollment.domain.Citizenship
-import com.gov.sg.baby_bonus_enrollment.domain.DisbursementStatus
-import com.gov.sg.baby_bonus_enrollment.domain.DisbursementType
+import com.gov.sg.baby_bonus_enrollment.domain.enrollment.Citizenship
+import com.gov.sg.baby_bonus_enrollment.domain.disbursement.DisbursementStatus
+import com.gov.sg.baby_bonus_enrollment.domain.disbursement.DisbursementType
 import com.gov.sg.baby_bonus_enrollment.external.disbursement.DisbursementClient
 import com.gov.sg.baby_bonus_enrollment.external.disbursement.DisbursementResult
 import com.gov.sg.baby_bonus_enrollment.external.ica.ChildRecord
