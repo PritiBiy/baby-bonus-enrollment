@@ -4,6 +4,7 @@ import com.gov.sg.baby_bonus_enrollment.audit.AuditLogger
 import com.gov.sg.baby_bonus_enrollment.controller.response.ErrorResponse
 import com.gov.sg.baby_bonus_enrollment.usecase.exception.DuplicateEnrollmentException
 import com.gov.sg.baby_bonus_enrollment.usecase.exception.EligibilityException
+import com.gov.sg.baby_bonus_enrollment.usecase.exception.NotFoundException
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -22,6 +23,10 @@ class GlobalExceptionHandler(private val auditLogger: AuditLogger) {
     @ResponseStatus(HttpStatus.CONFLICT)
     fun handleDuplicate(e: DuplicateEnrollmentException): ErrorResponse =
         ErrorResponse(e.message!!)
+
+    @ExceptionHandler(NotFoundException::class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    fun handleNotFound(e: NotFoundException): ErrorResponse = ErrorResponse(e.message!!)
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)

@@ -5,4 +5,5 @@ import java.util.UUID
 interface DisbursementEntityRepository {
     fun save(disbursement: Disbursement): Disbursement
     fun findById(id: UUID): Disbursement?
+    fun findByEnrollmentId(enrollmentId: UUID): Disbursement?
 }

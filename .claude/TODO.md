@@ -72,10 +72,11 @@ Tasks are ordered. Start each with a failing integration test — build everythi
 
 ### Task 6 — GET /api/v1/enrollments/{id}
 
-- [ ] Write failing integration test: known ID → `200`, enrollment + disbursement, NRICs masked
-- [ ] Write failing integration test: unknown ID → `404`
-- [ ] Implement GET by ID in controller and service
-- [ ] All tests pass
+- [x] Write failing integration test: known ID → `200`, enrollment + disbursement, NRICs masked
+- [x] Write failing integration test: unknown ID → `404`
+- [x] Implement `GetEnrollmentByIdUseCase`; `findByEnrollmentId` added to `DisbursementEntityRepository`
+- [x] `NotFoundException` → 404 in `GlobalExceptionHandler`
+- [x] All tests pass (33 tests green)
 
 ---
 
@@ -84,7 +85,7 @@ Tasks are ordered. Start each with a failing integration test — build everythi
 - [ ] Write failing integration test: returns all enrollments for a child, NRICs masked
 - [ ] Write failing integration test: unknown NRIC → `[]` (not 404)
 - [ ] Write failing integration test: missing `childNric` param → `400`
-- [ ] Implement list by `childNric` in controller and service
+- [ ] Implement list by `childNric` in controller and use case
 - [ ] All tests pass
 
 ---
@@ -95,14 +96,14 @@ Tasks are ordered. Start each with a failing integration test — build everythi
 - [ ] Write failing integration test: already `INELIGIBLE` → `422`
 - [ ] Write failing integration test: unknown ID → `404`
 - [ ] Write failing integration test: blank reason → `400`
-- [ ] Implement PATCH endpoint in controller and service
+- [ ] Implement PATCH endpoint in controller and use case
 - [ ] All tests pass
 
 ---
 
 ### Task 9 — Infrastructure and Submission
 
-- [ ] `Dockerfile` — builds and runs the service
+- [ ] `Dockerfile` — builds and runs the use case
 - [ ] `README.md` — setup, how to run, assumptions, "What I would do next"
 - [ ] `AI_USAGE.md` — tools used, how output was reviewed, what was discarded
 

@@ -15,4 +15,7 @@ class DisbursementEntityRepositoryImpl(
 
     override fun findById(id: UUID): Disbursement? =
         jpaRepository.findById(id).orElse(null)?.toDomain()
+
+    override fun findByEnrollmentId(enrollmentId: UUID): Disbursement? =
+        jpaRepository.findByEnrollmentId(enrollmentId)?.toDomain()
 }
