@@ -71,6 +71,11 @@ This document describes how AI tools were used during the development of this se
 - CC initially proposed splitting into four files by concern (`PostEnrollmentControllerTest`, `GetEnrollmentByIdControllerTest`, `AuditLoggingControllerTest`, `UnauthorizedControllerTest`); user corrected this to split strictly by API endpoint — so audit logging and auth tests fold into `PostEnrollmentControllerTest` as `@Nested` inner classes since they exercise the POST endpoint.
 - All 33 tests continue to pass.
 
+### Task 9 — Infrastructure and Submission
+
+- Dockerfile uses a multi-stage build: dependency resolution in one layer (cache-friendly), source compilation in the next, JRE-only runtime image to minimise attack surface.
+- README Assumptions and "What I would do next" sections written by user direction; CC drafted the content based on SCOPE.md and design decisions made throughout the project.
+
 ### Task 7 — GET /api/v1/enrollments?childNric=
 
 - Repository layer (`findByChildNric`, `findByEnrollmentId`) was already in place from Task 1; Task 7 only needed the use case and controller wiring.

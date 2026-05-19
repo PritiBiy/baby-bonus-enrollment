@@ -103,9 +103,9 @@ Tasks are ordered. Start each with a failing integration test — build everythi
 
 ### Task 9 — Infrastructure and Submission
 
-- [ ] `Dockerfile` — builds and runs the use case
-- [ ] `README.md` — setup, how to run, assumptions, "What I would do next"
-- [ ] `AI_USAGE.md` — tools used, how output was reviewed, what was discarded
+- [x] `Dockerfile` — multi-stage build; JRE-only runtime image
+- [x] `README.md` — setup, how to run, assumptions, "What I would do next"
+- [x] `AI_USAGE.md` — maintained throughout development
 
 ### Task 10 — Misc
 
