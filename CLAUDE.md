@@ -153,7 +153,10 @@ com.gov.sg.baby_bonus_enrollment
 - Swagger UI paths are allowlisted so they are accessible without a key
 ### Audit
 - Called from service layer only — never from controller or repository
-- Package exists; internals TBD
+- Log levels:
+  - `INFO` — normal flow events (enrollment submitted, eligibility passed, disbursement initiated)
+  - `WARN` — recoverable business rejections (eligibility failures, duplicate enrollment)
+  - `ERROR` — unexpected failures that indicate something is broken (unhandled exceptions, infrastructure errors)
 ---
 ## Design Principles (Kent Beck)
 
