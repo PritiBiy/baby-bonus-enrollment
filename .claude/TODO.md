@@ -110,7 +110,7 @@ Tasks are ordered. Start each with a failing integration test — build everythi
 ### Task 10 — Misc
 
 - [ ] Create precommit hook check if cc has built in hooks for this. 
-- [ ] For Disbursement 3000, create constant and give meaningful name.
+- [x] For Disbursement 3000, create constant and give meaningful name.
 - [ ] checkEligibility can audit instead of try catch block, its redundant 
 - [ ] Builders for test data 
 - [ ]  
