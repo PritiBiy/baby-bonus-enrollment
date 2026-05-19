@@ -1,5 +1,6 @@
 package com.gov.sg.baby_bonus_enrollment.controller.exception
 
+import com.gov.sg.baby_bonus_enrollment.audit.AuditLogger
 import com.gov.sg.baby_bonus_enrollment.controller.response.ErrorResponse
 import com.gov.sg.baby_bonus_enrollment.usecase.exception.DuplicateEnrollmentException
 import com.gov.sg.baby_bonus_enrollment.usecase.exception.EligibilityException
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
 @RestControllerAdvice
-class GlobalExceptionHandler {
+class GlobalExceptionHandler(private val auditLogger: AuditLogger) {
 
     @ExceptionHandler(EligibilityException::class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
@@ -36,6 +37,8 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception::class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    fun handleUnexpected(): ErrorResponse =
-        ErrorResponse("An unexpected error occurred")
+    fun handleUnexpected(e: Exception): ErrorResponse {
+        auditLogger.error("UNEXPECTED_ERROR type=${e.javaClass.simpleName} message=${e.message}")
+        return ErrorResponse("An unexpected error occurred")
+    }
 }
