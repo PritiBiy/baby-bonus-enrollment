@@ -4,6 +4,7 @@ import com.gov.sg.baby_bonus_enrollment.controller.response.ErrorResponse
 import com.gov.sg.baby_bonus_enrollment.usecase.exception.DuplicateEnrollmentException
 import com.gov.sg.baby_bonus_enrollment.usecase.exception.EligibilityException
 import org.springframework.http.HttpStatus
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -20,6 +21,13 @@ class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     fun handleDuplicate(e: DuplicateEnrollmentException): ErrorResponse =
         ErrorResponse(e.message!!)
+
+    @ExceptionHandler(MethodArgumentNotValidException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handleValidation(e: MethodArgumentNotValidException): ErrorResponse {
+        val message = e.bindingResult.fieldErrors.firstOrNull()?.defaultMessage ?: "Bad request"
+        return ErrorResponse(message)
+    }
 
     @ExceptionHandler(IllegalArgumentException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)

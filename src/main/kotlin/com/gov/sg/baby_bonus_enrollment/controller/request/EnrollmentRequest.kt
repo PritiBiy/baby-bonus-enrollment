@@ -1,8 +1,11 @@
 package com.gov.sg.baby_bonus_enrollment.controller.request
 
+import jakarta.validation.constraints.NotBlank
+
 data class EnrollmentRequest(
+    @field:NotBlank(message = "childNric must not be blank")
     val childNric: String,
+    @field:NotBlank(message = "parentNric must not be blank")
     val parentNric: String,
-    // TODO: add @Valid and constrain relationship to Relationship enum values (return 400 on invalid value)
     val relationship: String
 )

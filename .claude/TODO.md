@@ -30,15 +30,16 @@ Tasks are ordered. Start each with a failing integration test — build everythi
 
 ### Task 2 — POST /api/v1/enrollments
 
-- [ ] Write the failing test for other http status for the controller as mentioned in the ./claude/docs/api-contract.md
-- [ ] Implement global exception handler to return correct status codes and error messages for different failure scenarios (422 for eligibility failures, 409 for duplicates, etc.)
-- [ ] Add error mapping from domain exception to http exception.
-- [ ] All tests pass
+- [x] Write the failing test for other http status for the controller as mentioned in the ./claude/docs/api-contract.md
+- [x] Implement global exception handler to return correct status codes and error messages for different failure scenarios (422 for eligibility failures, 409 for duplicates, etc.)
+- [x] Add error mapping from domain exception to http exception.
+- [x] All tests pass (27 tests green)
 
 ---
 
 ### Task 3 — Audit Logging
 
+- [ ] use slf4j with Logback; configure in `application.properties` to log to file with daily rotation
 - [ ] Log: enrollment submitted — timestamp, masked child NRIC, caller identity, outcome
 - [ ] Log: eligibility check result — pass/fail and reason
 - [ ] Log: disbursement initiated — enrollment ID, amount

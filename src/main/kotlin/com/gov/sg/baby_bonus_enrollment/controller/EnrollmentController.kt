@@ -6,6 +6,7 @@ import com.gov.sg.baby_bonus_enrollment.controller.response.EnrollmentResponse
 import com.gov.sg.baby_bonus_enrollment.domain.enrollment.Relationship
 import com.gov.sg.baby_bonus_enrollment.usecase.EnrollChildUseCase
 import com.gov.sg.baby_bonus_enrollment.usecase.dto.CreateEnrollmentDto
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -19,11 +20,16 @@ class EnrollmentController(private val enrollChildUseCase: EnrollChildUseCase) {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun enroll(@RequestBody request: EnrollmentRequest): EnrollmentResponse {
+    fun enroll(@Valid @RequestBody request: EnrollmentRequest): EnrollmentResponse {
+        val relationship = try {
+            Relationship.valueOf(request.relationship)
+        } catch (e: IllegalArgumentException) {
+            throw IllegalArgumentException("Invalid value for relationship")
+        }
         val dto = CreateEnrollmentDto(
             childNric = request.childNric,
             parentNric = request.parentNric,
-            relationship = Relationship.valueOf(request.relationship)
+            relationship = relationship
         )
         val result = enrollChildUseCase.execute(dto)
         return EnrollmentResponse(

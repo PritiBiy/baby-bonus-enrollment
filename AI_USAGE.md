@@ -30,3 +30,9 @@ This document describes how AI tools were used during the development of this se
 - `Clock` injected as constructor dependency into `EnrollChildUseCase` so tests can control time with `Clock.fixed(...)`; CC initially placed `Clock` as a `@Bean` only — clarified that unit tests construct the use case directly with a fixed clock, the `@Bean` wires it only for the Spring context.
 - Migrated all test assertions from AssertJ / `kotlin.test` to Kotest (`shouldBe`, `shouldNotBe`, `shouldThrow`).
 
+### Task 2 — Error scenarios and validation (session 5)
+
+- CC initially separated test groups using comment banners (`// --- 422 eligibility failures ---`); corrected to JUnit 5 `@Nested` inner classes so the grouping is structural, not cosmetic.
+- `@NotBlank` validation added to `EnrollmentRequest` with `spring-boot-starter-validation`; `MethodArgumentNotValidException` handler added to `GlobalExceptionHandler` to return the field's constraint message as the error body.
+- `Relationship.valueOf("INVALID")` produces a JVM-verbose message; wrapped in try/catch in controller to throw `IllegalArgumentException("Invalid value for relationship")` with the exact message from the API contract.
+

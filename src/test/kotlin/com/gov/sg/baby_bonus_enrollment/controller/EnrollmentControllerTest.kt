@@ -1,9 +1,8 @@
 package com.gov.sg.baby_bonus_enrollment.controller
 
 import com.gov.sg.baby_bonus_enrollment.controller.response.DisbursementResponse
-import tools.jackson.databind.ObjectMapper
-import tools.jackson.module.kotlin.readValue
 import com.gov.sg.baby_bonus_enrollment.controller.response.EnrollmentResponse
+import com.gov.sg.baby_bonus_enrollment.controller.response.ErrorResponse
 import com.gov.sg.baby_bonus_enrollment.domain.disbursement.DisbursementStatus
 import com.gov.sg.baby_bonus_enrollment.domain.disbursement.DisbursementType
 import com.gov.sg.baby_bonus_enrollment.domain.enrollment.Citizenship
@@ -16,6 +15,7 @@ import com.gov.sg.baby_bonus_enrollment.external.ica.IcaClient
 import com.gov.sg.baby_bonus_enrollment.external.iroas.IroasClient
 import com.gov.sg.baby_bonus_enrollment.external.iroas.ParentRecord
 import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
@@ -28,6 +28,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.module.kotlin.readValue
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
@@ -86,4 +88,128 @@ class EnrollmentControllerTest {
             )
         )
     }
+
+    @Nested
+    inner class EligibilityFailures {
+
+        @Test
+        fun `returns 422 when child is not found in ICA`() {
+            given(icaClient.findChild(eq("T2400001A"))).willReturn(null)
+
+            val result = mockMvc.perform(enrollmentRequest())
+                .andExpect(status().isUnprocessableEntity)
+                .andReturn()
+
+            objectMapper.readValue<ErrorResponse>(result.response.contentAsString) shouldBe
+                ErrorResponse("Child not found in ICA records")
+        }
+
+        @Test
+        fun `returns 422 when child is not a Singapore Citizen`() {
+            given(icaClient.findChild(eq("T2400001A"))).willReturn(
+                ChildRecord("T2400001A", "Tan Baby", LocalDate.of(2025, 1, 15), Citizenship.PERMANENT_RESIDENT)
+            )
+
+            val result = mockMvc.perform(enrollmentRequest())
+                .andExpect(status().isUnprocessableEntity)
+                .andReturn()
+
+            objectMapper.readValue<ErrorResponse>(result.response.contentAsString) shouldBe
+                ErrorResponse("Child is not a Singapore Citizen")
+        }
+
+        @Test
+        fun `returns 422 when parent is not found in IROAS`() {
+            given(icaClient.findChild(eq("T2400001A"))).willReturn(
+                ChildRecord("T2400001A", "Tan Baby", LocalDate.of(2025, 1, 15), Citizenship.SINGAPORE_CITIZEN)
+            )
+            given(iroasClient.findParent(eq("S8001234A"))).willReturn(null)
+
+            val result = mockMvc.perform(enrollmentRequest())
+                .andExpect(status().isUnprocessableEntity)
+                .andReturn()
+
+            objectMapper.readValue<ErrorResponse>(result.response.contentAsString) shouldBe
+                ErrorResponse("Parent not found in IROAS records")
+        }
+    }
+
+    @Nested
+    inner class DuplicateEnrollment {
+
+        @Test
+        fun `returns 409 when child already has an active enrollment`() {
+            given(icaClient.findChild(eq("T2400003C"))).willReturn(
+                ChildRecord("T2400003C", "Tan Baby Two", LocalDate.of(2025, 3, 1), Citizenship.SINGAPORE_CITIZEN)
+            )
+            given(iroasClient.findParent(eq("S8001234A"))).willReturn(
+                ParentRecord("S8001234A", "Tan Ah Kow")
+            )
+            given(disbursementClient.initiate(any(), eq(DisbursementType.CASH_GIFT), eq(BigDecimal("3000.00")))).willReturn(
+                DisbursementResult(UUID.randomUUID(), DisbursementStatus.PROCESSED, Instant.now())
+            )
+
+            val request = """{"childNric": "T2400003C", "parentNric": "S8001234A", "relationship": "FATHER"}"""
+
+            mockMvc.perform(post("/api/v1/enrollments").contentType(MediaType.APPLICATION_JSON).content(request))
+                .andExpect(status().isCreated)
+
+            val result = mockMvc.perform(post("/api/v1/enrollments").contentType(MediaType.APPLICATION_JSON).content(request))
+                .andExpect(status().isConflict)
+                .andReturn()
+
+            objectMapper.readValue<ErrorResponse>(result.response.contentAsString) shouldBe
+                ErrorResponse("Child already has an active enrollment")
+        }
+    }
+
+    @Nested
+    inner class BadRequest {
+
+        @Test
+        fun `returns 400 for invalid relationship value`() {
+            val result = mockMvc.perform(
+                post("/api/v1/enrollments")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""{"childNric": "T2400001A", "parentNric": "S8001234A", "relationship": "INVALID"}""")
+            )
+                .andExpect(status().isBadRequest)
+                .andReturn()
+
+            objectMapper.readValue<ErrorResponse>(result.response.contentAsString) shouldBe
+                ErrorResponse("Invalid value for relationship")
+        }
+
+        @Test
+        fun `returns 400 when childNric is blank`() {
+            val result = mockMvc.perform(
+                post("/api/v1/enrollments")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""{"childNric": "", "parentNric": "S8001234A", "relationship": "FATHER"}""")
+            )
+                .andExpect(status().isBadRequest)
+                .andReturn()
+
+            objectMapper.readValue<ErrorResponse>(result.response.contentAsString) shouldBe
+                ErrorResponse("childNric must not be blank")
+        }
+
+        @Test
+        fun `returns 400 when parentNric is blank`() {
+            val result = mockMvc.perform(
+                post("/api/v1/enrollments")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""{"childNric": "T2400001A", "parentNric": "", "relationship": "FATHER"}""")
+            )
+                .andExpect(status().isBadRequest)
+                .andReturn()
+
+            objectMapper.readValue<ErrorResponse>(result.response.contentAsString) shouldBe
+                ErrorResponse("parentNric must not be blank")
+        }
+    }
+
+    private fun enrollmentRequest() = post("/api/v1/enrollments")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("""{"childNric": "T2400001A", "parentNric": "S8001234A", "relationship": "FATHER"}""")
 }
