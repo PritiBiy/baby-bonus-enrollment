@@ -50,3 +50,11 @@ This document describes how AI tools were used during the development of this se
 - `AuditLogger` refactored to a pure utility (`info/warn/error` methods, no domain imports) — domain-aware audit methods (`auditEnrollmentSubmitted` etc.) moved to private methods in `EnrollChildUseCase`; use case owns what to log, logger owns how to write it.
 - Log levels: eligibility failures and duplicates use `WARN` (recoverable business rejections); normal flow uses `INFO`; unexpected exceptions in `GlobalExceptionHandler` use `ERROR`.
 
+### Test Refactoring — Controller tests split by API endpoint
+
+- Refactoring was initiated by the user, who identified that common mock setup was repeated across tests and that grouping by API endpoint would be clearer.
+- User directed: extract repeated stub setup into helper methods with minimal parameters, and split by API endpoint so all success and error scenarios for one API live in one file.
+- CC implemented `BaseControllerTest` with shared `@SpringBootTest`/`@AutoConfigureMockMvc` setup, `@MockitoBean` declarations, and stub helpers (`stubChildInIca`, `stubParentInIroas`, `stubDisbursement`, `stubEligibleEnrollment`).
+- CC initially proposed splitting into four files by concern (`PostEnrollmentControllerTest`, `GetEnrollmentByIdControllerTest`, `AuditLoggingControllerTest`, `UnauthorizedControllerTest`); user corrected this to split strictly by API endpoint — so audit logging and auth tests fold into `PostEnrollmentControllerTest` as `@Nested` inner classes since they exercise the POST endpoint.
+- All 33 tests continue to pass.
+
