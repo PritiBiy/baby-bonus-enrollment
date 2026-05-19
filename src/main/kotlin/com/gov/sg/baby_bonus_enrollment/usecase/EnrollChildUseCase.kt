@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component
 import java.math.BigDecimal
 import java.time.Clock
 import java.time.Instant
+import java.util.UUID
 
 @Component
 class EnrollChildUseCase(
@@ -35,27 +36,39 @@ class EnrollChildUseCase(
     private val auditLogger: AuditLogger
 ) {
     fun execute(request: CreateEnrollmentDto): EnrollmentDto {
-        auditLogger.enrollmentSubmitted(request.childNric, request.parentNric)
+        auditEnrollmentSubmitted(request.childNric, request.parentNric)
 
         try {
             checkEligibility(request)
         } catch (e: EligibilityException) {
-            auditLogger.eligibilityFailed(request.childNric, e.reason.message)
+            auditEligibilityFailed(request.childNric, e.reason.message)
             throw e
         } catch (e: DuplicateEnrollmentException) {
-            auditLogger.eligibilityFailed(request.childNric, e.message ?: "Duplicate enrollment")
+            auditEligibilityFailed(request.childNric, e.message ?: "Duplicate enrollment")
             throw e
         }
 
-        auditLogger.eligibilityPassed(request.childNric)
+        auditEligibilityPassed(request.childNric)
 
         val enrollment = saveEnrollment(request)
         val disbursement = initiateDisbursement(enrollment)
 
-        auditLogger.disbursementInitiated(enrollment.id, disbursement.amount)
+        auditDisbursementInitiated(enrollment.id, disbursement.amount)
 
         return toDto(enrollment, disbursement)
     }
+
+    private fun auditEnrollmentSubmitted(childNric: Nric, parentNric: Nric) =
+        auditLogger.log("ENROLLMENT_SUBMITTED childNric=$childNric parentNric=$parentNric")
+
+    private fun auditEligibilityPassed(childNric: Nric) =
+        auditLogger.log("ELIGIBILITY_PASSED childNric=$childNric")
+
+    private fun auditEligibilityFailed(childNric: Nric, reason: String) =
+        auditLogger.log("ELIGIBILITY_FAILED childNric=$childNric reason=$reason")
+
+    private fun auditDisbursementInitiated(enrollmentId: UUID, amount: BigDecimal) =
+        auditLogger.log("DISBURSEMENT_INITIATED enrollmentId=$enrollmentId amount=$amount")
 
     private fun checkEligibility(request: CreateEnrollmentDto) {
         val child = icaClient.findChild(request.childNric.value)
