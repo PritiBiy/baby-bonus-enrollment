@@ -191,6 +191,15 @@ Each commit should represent one coherent step. A reader should be able to follo
 - Null safety is a feature — do not reach for `!!`; model optionality explicitly with `?` and handle it with `?.let`, `?:`, or `when`
 - Extension functions are fine when they genuinely extend a type; avoid them as a workaround for poor structure
 
+### Method ordering within a class
+
+Order private methods to match the level of abstraction they operate at, reading top-down:
+
+1. **Public entry point first** (`execute`, etc.)
+2. **Business logic methods in call order** — each method appears near where it is first called, so the reader can follow the flow without jumping
+3. **Each helper immediately below its caller** — if `checkEligibility` calls `failEligibility`, place `failEligibility` right after `checkEligibility`
+4. **Low-level / infrastructure concerns last** — audit logging, simple formatters, and one-liner helpers whose names are self-explanatory go at the bottom; readers rarely need to inspect their bodies
+
 ---
 
 ## Spring Boot Conventions

@@ -49,6 +49,8 @@ This document describes how AI tools were used during the development of this se
 - MDC caller set in `ApiKeyFilter` after successful authentication; cleared in `finally` block; log pattern includes `%X{caller}` so every log line records the caller identity without threading it through the call stack.
 - `AuditLogger` refactored to a pure utility (`info/warn/error` methods, no domain imports) — domain-aware audit methods (`auditEnrollmentSubmitted` etc.) moved to private methods in `EnrollChildUseCase`; use case owns what to log, logger owns how to write it.
 - Log levels: eligibility failures and duplicates use `WARN` (recoverable business rejections); normal flow uses `INFO`; unexpected exceptions in `GlobalExceptionHandler` use `ERROR`.
+- User directed moving the try-catch out of `execute` into `checkEligibility` so failure logging is co-located with the failure. Simplified further using a `Nothing`-returning `failEligibility` helper — each eligibility check becomes a one-liner with no try-catch.
+- User directed method ordering convention: business logic in call order near the top, low-level concerns (audit one-liners) at the bottom since their names are self-explanatory. Rule captured in `CLAUDE.md`.
 
 ### Test Refactoring — Controller tests split by API endpoint
 

@@ -37,17 +37,7 @@ class EnrollChildUseCase(
 ) {
     fun execute(request: CreateEnrollmentDto): EnrollmentDto {
         auditEnrollmentSubmitted(request.childNric, request.parentNric)
-
-        try {
-            checkEligibility(request)
-        } catch (e: EligibilityException) {
-            auditEligibilityFailed(request.childNric, e.reason.message)
-            throw e
-        } catch (e: DuplicateEnrollmentException) {
-            auditEligibilityFailed(request.childNric, e.message ?: "Duplicate enrollment")
-            throw e
-        }
-
+        checkEligibility(request)
         auditEligibilityPassed(request.childNric)
 
         val enrollment = saveEnrollment(request)
@@ -58,33 +48,25 @@ class EnrollChildUseCase(
         return toDto(enrollment, disbursement)
     }
 
-    private fun auditEnrollmentSubmitted(childNric: Nric, parentNric: Nric) =
-        auditLogger.info("ENROLLMENT_SUBMITTED childNric=$childNric parentNric=$parentNric")
-
-    private fun auditEligibilityPassed(childNric: Nric) =
-        auditLogger.info("ELIGIBILITY_PASSED childNric=$childNric")
-
-    private fun auditEligibilityFailed(childNric: Nric, reason: String) =
-        auditLogger.warn("ELIGIBILITY_FAILED childNric=$childNric reason=$reason")
-
-    private fun auditDisbursementInitiated(enrollmentId: UUID, amount: BigDecimal) =
-        auditLogger.info("DISBURSEMENT_INITIATED enrollmentId=$enrollmentId amount=$amount")
-
     private fun checkEligibility(request: CreateEnrollmentDto) {
         val child = icaClient.findChild(request.childNric.value)
-            ?: throw EligibilityException(EligibilityReason.CHILD_NOT_FOUND)
+            ?: failEligibility(request.childNric, EligibilityReason.CHILD_NOT_FOUND)
 
-        if (child.citizenship != Citizenship.SINGAPORE_CITIZEN) {
-            throw EligibilityException(EligibilityReason.NOT_SINGAPORE_CITIZEN)
-        }
+        if (child.citizenship != Citizenship.SINGAPORE_CITIZEN)
+            failEligibility(request.childNric, EligibilityReason.NOT_SINGAPORE_CITIZEN)
 
         iroasClient.findParent(request.parentNric.value)
-            ?: throw EligibilityException(EligibilityReason.PARENT_NOT_FOUND)
+            ?: failEligibility(request.childNric, EligibilityReason.PARENT_NOT_FOUND)
 
-        val existing = enrollmentRepository.findByChildNric(request.childNric.value)
-        if (existing.any { it.status == EnrollmentStatus.ENROLLED }) {
+        if (enrollmentRepository.findByChildNric(request.childNric.value).any { it.status == EnrollmentStatus.ENROLLED }) {
+            auditEligibilityFailed(request.childNric, "Child already has an active enrollment")
             throw DuplicateEnrollmentException("Child already has an active enrollment")
         }
+    }
+
+    private fun failEligibility(childNric: Nric, reason: EligibilityReason): Nothing {
+        auditEligibilityFailed(childNric, reason.message)
+        throw EligibilityException(reason)
     }
 
     private fun saveEnrollment(request: CreateEnrollmentDto): Enrollment =
@@ -129,4 +111,16 @@ class EnrollChildUseCase(
                 processedAt = disbursement.processedAt
             )
         )
+
+    private fun auditEnrollmentSubmitted(childNric: Nric, parentNric: Nric) =
+        auditLogger.info("ENROLLMENT_SUBMITTED childNric=$childNric parentNric=$parentNric")
+
+    private fun auditEligibilityPassed(childNric: Nric) =
+        auditLogger.info("ELIGIBILITY_PASSED childNric=$childNric")
+
+    private fun auditEligibilityFailed(childNric: Nric, reason: String) =
+        auditLogger.warn("ELIGIBILITY_FAILED childNric=$childNric reason=$reason")
+
+    private fun auditDisbursementInitiated(enrollmentId: UUID, amount: BigDecimal) =
+        auditLogger.info("DISBURSEMENT_INITIATED enrollmentId=$enrollmentId amount=$amount")
 }
