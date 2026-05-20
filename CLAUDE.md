@@ -203,9 +203,3 @@ Fail fast — return the first failing condition as a `422` with the exact messa
 ## Testing
 
 All testing conventions, patterns, and layer-specific rules are in `.claude/commands/write-tests.md`. Read that file before writing any test.
-
-### Mock data paths
-
-- `src/main/resources/mock-data/ica_children.json` — loaded by `MockIcaClient` at startup
-- `src/main/resources/mock-data/iroas_parents.json` — loaded by `MockIroasClient` at startup
-- `src/test/resources/mock-data/` — test-only fixtures for stub client unit tests

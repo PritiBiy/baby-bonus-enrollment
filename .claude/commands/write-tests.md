@@ -157,13 +157,14 @@ class EnrollChildUseCaseTest {
 
 ## Test Resources
 
-```
-src/main/resources/mock-data/    ← loaded by stub clients (IcaStubClient, IroasStubClient) at startup
-src/test/resources/mock-data/    ← test fixtures; used by stub client unit tests and any test that needs JSON data
-```
+| Path | Purpose |
+|------|---------|
+| `src/main/resources/mock-data/ica_children.json` | Loaded by `MockIcaClient` at startup |
+| `src/main/resources/mock-data/iroas_parents.json` | Loaded by `MockIroasClient` at startup |
+| `src/test/resources/mock-data/` | Test-only fixtures for stub client unit tests |
 
 **Rules:**
-- Stub clients (`IcaStubClient`, `IroasStubClient`) read from `src/main/resources/mock-data/` via `ClassPathResource` — they own all `ObjectMapper` / JSON parsing logic
+- `MockIcaClient` and `MockIroasClient` read from `src/main/resources/mock-data/` via `ClassPathResource` — they own all `ObjectMapper` / JSON parsing logic
 - Tests that need JSON data (e.g. testing the stub client itself) load from `src/test/resources/mock-data/`
 - **Never put `ObjectMapper` or JSON file parsing in a test.** If a test needs a parsed record, either construct it inline or delegate to the stub client
 - The integration test mocks `IcaClient` at the interface level and returns typed records directly — it does not read JSON files at all
