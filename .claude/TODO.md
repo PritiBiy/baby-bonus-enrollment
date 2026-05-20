@@ -118,6 +118,6 @@ Tasks are ordered. Start each with a failing integration test — build everythi
 - [ ] Update AI_USGAE.md with correct table, as it was created before.
 - [x] toDto is repeated across use cases, can be moved to a common place.
 - [ ] Custom validation for relationship field 
-- [ ]
+- [x] EnrollmentEntity.createdAt resets on every update
 
 ---

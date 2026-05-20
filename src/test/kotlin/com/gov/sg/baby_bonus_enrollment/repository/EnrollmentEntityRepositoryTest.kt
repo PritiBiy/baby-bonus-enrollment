@@ -60,15 +60,17 @@ class EnrollmentEntityRepositoryTest {
     }
 
     @Test
-    fun `updateStatus sets status to INELIGIBLE and stores reason`() {
+    fun `updateStatus sets status to INELIGIBLE and stores reason without resetting createdAt`() {
         val enrollment = enrollment()
         repository.save(enrollment)
+        val createdAt = jpaRepository.findById(enrollment.id).orElseThrow().createdAt
 
         repository.updateStatus(enrollment.id, "data incorrect")
 
         val entity = jpaRepository.findById(enrollment.id).orElseThrow()
         entity.status shouldBe EnrollmentStatus.INELIGIBLE
         entity.reason shouldBe "data incorrect"
+        entity.createdAt shouldBe createdAt
     }
 
     @Test
