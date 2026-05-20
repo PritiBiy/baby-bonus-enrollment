@@ -1,3 +1,12 @@
+### Java ###
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+hs_err_pid*
+replay_pid*
+
 ### Gradle ###
 .gradle/
 build/
@@ -39,15 +48,6 @@ bin/
 
 ### Kotlin ###
 .kotlin/
-
-### Java ###
-*.class
-*.jar
-*.war
-*.ear
-*.nar
-hs_err_pid*
-replay_pid*
 
 ### macOS ###
 .DS_Store
