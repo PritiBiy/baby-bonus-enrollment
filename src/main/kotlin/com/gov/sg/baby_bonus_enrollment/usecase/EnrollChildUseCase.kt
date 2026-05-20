@@ -1,6 +1,7 @@
 package com.gov.sg.baby_bonus_enrollment.usecase
 
 import com.gov.sg.baby_bonus_enrollment.audit.AuditEvent
+import com.gov.sg.baby_bonus_enrollment.audit.AuditEventType
 import com.gov.sg.baby_bonus_enrollment.audit.AuditLogger
 import com.gov.sg.baby_bonus_enrollment.domain.Nric
 import com.gov.sg.baby_bonus_enrollment.domain.disbursement.Disbursement
@@ -101,14 +102,14 @@ class EnrollChildUseCase(
         EnrollmentDto.from(enrollment, disbursement)
 
     private fun auditEnrollmentSubmitted(childNric: Nric, parentNric: Nric) =
-        auditLogger.info(AuditEvent("ENROLLMENT_SUBMITTED", childNric, mapOf("parentNric" to parentNric)))
+        auditLogger.info(AuditEvent(AuditEventType.ENROLLMENT_SUBMITTED, childNric, mapOf("parentNric" to parentNric)))
 
     private fun auditEligibilityPassed(childNric: Nric) =
-        auditLogger.info(AuditEvent("ELIGIBILITY_PASSED", childNric))
+        auditLogger.info(AuditEvent(AuditEventType.ELIGIBILITY_PASSED, childNric))
 
     private fun auditEligibilityFailed(childNric: Nric, reason: String) =
-        auditLogger.warn(AuditEvent("ELIGIBILITY_FAILED", childNric, mapOf("reason" to reason)))
+        auditLogger.warn(AuditEvent(AuditEventType.ELIGIBILITY_FAILED, childNric, mapOf("reason" to reason)))
 
     private fun auditDisbursementInitiated(enrollment: Enrollment, amount: BigDecimal) =
-        auditLogger.info(AuditEvent("DISBURSEMENT_INITIATED", Nric(enrollment.childNric), mapOf("enrollmentId" to enrollment.id, "amount" to amount)))
+        auditLogger.info(AuditEvent(AuditEventType.DISBURSEMENT_INITIATED, Nric(enrollment.childNric), mapOf("enrollmentId" to enrollment.id, "amount" to amount)))
 }

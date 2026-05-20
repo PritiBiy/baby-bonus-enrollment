@@ -3,7 +3,7 @@ package com.gov.sg.baby_bonus_enrollment.audit
 import com.gov.sg.baby_bonus_enrollment.domain.Nric
 
 data class AuditEvent(
-    val event: String,
+    val event: AuditEventType,
     val nric: Nric,
     val extras: Map<String, Any> = emptyMap()
 ) {
