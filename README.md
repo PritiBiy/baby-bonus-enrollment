@@ -57,7 +57,6 @@ Tests use a fixed key (`test-api-key`) configured in `src/test/resources/applica
 - **Persistent storage** — Replace H2 with PostgreSQL and manage schema migrations with Flyway or Liquibase.
 - **Real external clients** — Implement live HTTP clients for ICA, IROAS, and the disbursement service using Spring's `RestClient`.
 - **Async disbursement** — Move disbursement to a background process; POST returns `PENDING` and callers poll `GET /{id}` for the final status.
-- **Structured logging** — Switch to JSON log output (Logstash encoder) for ingestion into a log aggregation pipeline.
 - **Multi-caller authentication** — Support multiple API keys or OAuth2 client credentials to distinguish callers in audit logs and enable key rotation.
 - **Observability** — Expose Spring Actuator health and metrics endpoints; wire into a monitoring stack.
 

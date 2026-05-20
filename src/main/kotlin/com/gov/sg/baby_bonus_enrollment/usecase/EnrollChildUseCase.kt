@@ -1,5 +1,6 @@
 package com.gov.sg.baby_bonus_enrollment.usecase
 
+import com.gov.sg.baby_bonus_enrollment.audit.AuditEvent
 import com.gov.sg.baby_bonus_enrollment.audit.AuditLogger
 import com.gov.sg.baby_bonus_enrollment.domain.Nric
 import com.gov.sg.baby_bonus_enrollment.domain.disbursement.Disbursement
@@ -23,7 +24,6 @@ import org.springframework.stereotype.Component
 import java.math.BigDecimal
 import java.time.Clock
 import java.time.Instant
-import java.util.UUID
 
 internal val CASH_GIFT_AMOUNT: BigDecimal = BigDecimal("3000.00")
 
@@ -93,7 +93,7 @@ class EnrollChildUseCase(
                 processedAt = result.processedAt
             )
         )
-        auditDisbursementInitiated(enrollment.id, disbursement.amount)
+        auditDisbursementInitiated(enrollment, disbursement.amount)
         return disbursement
     }
 
@@ -101,14 +101,14 @@ class EnrollChildUseCase(
         EnrollmentDto.from(enrollment, disbursement)
 
     private fun auditEnrollmentSubmitted(childNric: Nric, parentNric: Nric) =
-        auditLogger.info("ENROLLMENT_SUBMITTED childNric=$childNric parentNric=$parentNric")
+        auditLogger.info(AuditEvent("ENROLLMENT_SUBMITTED", childNric, mapOf("parentNric" to parentNric)))
 
     private fun auditEligibilityPassed(childNric: Nric) =
-        auditLogger.info("ELIGIBILITY_PASSED childNric=$childNric")
+        auditLogger.info(AuditEvent("ELIGIBILITY_PASSED", childNric))
 
     private fun auditEligibilityFailed(childNric: Nric, reason: String) =
-        auditLogger.warn("ELIGIBILITY_FAILED childNric=$childNric reason=$reason")
+        auditLogger.warn(AuditEvent("ELIGIBILITY_FAILED", childNric, mapOf("reason" to reason)))
 
-    private fun auditDisbursementInitiated(enrollmentId: UUID, amount: BigDecimal) =
-        auditLogger.info("DISBURSEMENT_INITIATED enrollmentId=$enrollmentId amount=$amount")
+    private fun auditDisbursementInitiated(enrollment: Enrollment, amount: BigDecimal) =
+        auditLogger.info(AuditEvent("DISBURSEMENT_INITIATED", Nric(enrollment.childNric), mapOf("enrollmentId" to enrollment.id, "amount" to amount)))
 }
