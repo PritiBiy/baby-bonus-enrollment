@@ -40,6 +40,21 @@ class DisbursementEntityRepositoryTest {
         repository.findById(UUID.randomUUID()) shouldBe null
     }
 
+    @Test
+    fun `findByEnrollmentId returns disbursement for known enrollment id`() {
+        val disbursement = disbursement()
+        repository.save(disbursement)
+
+        val result = repository.findByEnrollmentId(disbursement.enrollmentId)
+
+        result shouldBe disbursement
+    }
+
+    @Test
+    fun `findByEnrollmentId returns null for unknown enrollment id`() {
+        repository.findByEnrollmentId(UUID.randomUUID()) shouldBe null
+    }
+
     private fun disbursement() = Disbursement(
         enrollmentId = UUID.randomUUID(),
         type = DisbursementType.CASH_GIFT,
