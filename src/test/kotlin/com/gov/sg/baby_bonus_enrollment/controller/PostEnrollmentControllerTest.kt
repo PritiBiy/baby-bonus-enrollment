@@ -154,6 +154,36 @@ class PostEnrollmentControllerTest : BaseControllerTest() {
             objectMapper.readValue<ErrorResponse>(result.response.contentAsString) shouldBe
                 ErrorResponse("parentNric must not be blank")
         }
+
+        @Test
+        fun `returns 400 when relationship is blank`() {
+            val result = mockMvc.perform(
+                post("/api/v1/enrollments")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("X-API-Key", API_KEY)
+                    .content("""{"childNric": "T2400001A", "parentNric": "S8001234A", "relationship": ""}""")
+            )
+                .andExpect(status().isBadRequest)
+                .andReturn()
+
+            objectMapper.readValue<ErrorResponse>(result.response.contentAsString) shouldBe
+                ErrorResponse("relationship must not be blank")
+        }
+
+        @Test
+        fun `returns 400 when relationship is missing`() {
+            val result = mockMvc.perform(
+                post("/api/v1/enrollments")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("X-API-Key", API_KEY)
+                    .content("""{"childNric": "T2400001A", "parentNric": "S8001234A"}""")
+            )
+                .andExpect(status().isBadRequest)
+                .andReturn()
+
+            objectMapper.readValue<ErrorResponse>(result.response.contentAsString) shouldBe
+                ErrorResponse("Bad request")
+        }
     }
 
     @Nested

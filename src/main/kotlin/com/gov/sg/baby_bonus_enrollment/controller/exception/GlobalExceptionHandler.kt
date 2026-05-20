@@ -7,6 +7,7 @@ import com.gov.sg.baby_bonus_enrollment.usecase.exception.DuplicateEnrollmentExc
 import com.gov.sg.baby_bonus_enrollment.usecase.exception.EligibilityException
 import com.gov.sg.baby_bonus_enrollment.usecase.exception.NotFoundException
 import org.springframework.http.HttpStatus
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -42,6 +43,11 @@ class GlobalExceptionHandler(private val auditLogger: AuditLogger) {
         val message = e.bindingResult.fieldErrors.firstOrNull()?.defaultMessage ?: "Bad request"
         return ErrorResponse(message)
     }
+
+    @ExceptionHandler(HttpMessageNotReadableException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handleUnreadable(e: HttpMessageNotReadableException): ErrorResponse =
+        ErrorResponse("Bad request")
 
     @ExceptionHandler(MissingServletRequestParameterException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
