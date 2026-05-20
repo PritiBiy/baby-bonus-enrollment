@@ -7,18 +7,6 @@ The Baby Bonus Scheme supports parents of newborn Singapore Citizens with two fi
 
 Parents apply to enrol their newborn child. The system checks eligibility against government sources of truth, creates an enrollment record, and initiates disbursement.
 
-### Project Documents
-
-| Document | Purpose |
-|----------|---------|
-| `SCOPE.md` | Scoping decisions — what is built, deferred, and why |
-| `data-sensitivity.md` | How NRIC and financial data is protected at rest, in transit, and in logs |
-| `AI_USAGE.md` | How AI tools were used, where output was corrected, and where it was accepted |
-| `.claude/docs/api-contract.md` | Full API contract — request/response shapes, status codes, error messages |
-| `.claude/docs/domain-model.md` | Canonical domain entities and field types |
-| `CLAUDE.md` | Architectural rules and conventions given to Claude Code as context |
-| `.claude/TODO.md` | Ordered task list used to drive development session by session |
-
 ### Claude Code Commands
 
 | Command | File | Purpose |
@@ -29,7 +17,8 @@ Parents apply to enrol their newborn child. The system checks eligibility agains
 
 ### Prerequisites
 
-Java 21
+- Java 21
+- Gradle (via the included `./gradlew` wrapper — no separate installation needed)
 
 ### Running the service
 
@@ -38,6 +27,14 @@ The service requires an `API_KEY` environment variable. It will not start withou
 ```bash
 API_KEY=your-secret-key ./gradlew bootRun
 ```
+
+Once running:
+
+| | URL |
+|-|-----|
+| API base | `http://localhost:8080/api/v1` |
+| Swagger UI | `http://localhost:8080/swagger-ui.html` |
+| H2 console | `http://localhost:8080/h2-console` |
 
 ### Running with Docker
 
@@ -59,7 +56,14 @@ X-API-Key: your-secret-key
 ### Running tests
 
 ```bash
+# Run all tests
 ./gradlew test
+
+# Run a single test class
+./gradlew test --tests "com.gov.sg.baby_bonus_enrollment.usecase.EnrollChildUseCaseTest"
+
+# Run a single test method
+./gradlew test --tests "com.gov.sg.baby_bonus_enrollment.usecase.EnrollChildUseCaseTest.enrolling a child who is not a Singapore citizen throws EligibilityException"
 ```
 
 Tests use a fixed key (`test-api-key`) configured in `src/test/resources/application.properties` — no environment variable needed to run the test suite.
@@ -72,11 +76,22 @@ Tests use a fixed key (`test-api-key`) configured in `src/test/resources/applica
 - **Single pre-shared API key** — One key is configured via `API_KEY` at startup. There is no multi-caller key management or rotation endpoint.
 - **NRIC format not validated** — The service trusts the caller to supply a correctly formatted NRIC. Only `@NotBlank` is enforced.
 
+### Project Documents
+
+| Document | Purpose |
+|----------|---------|
+| `SCOPE.md` | Scoping decisions — what is built, deferred, and why |
+| `data-sensitivity.md` | How NRIC and financial data is protected at rest, in transit, and in logs |
+| `AI_USAGE.md` | How AI tools were used, where output was corrected, and where it was accepted |
+| `.claude/docs/api-contract.md` | Full API contract — request/response shapes, status codes, error messages |
+| `.claude/docs/domain-model.md` | Canonical domain entities and field types |
+| `CLAUDE.md` | Architectural rules and conventions given to Claude Code as context |
+| `.claude/TODO.md` | Ordered task list used to drive development session by session |
+
 ### What I would do next
 
 - **Persistent storage** — Replace H2 with PostgreSQL and manage schema migrations with Flyway or Liquibase.
-- **Real external clients** — Implement live HTTP clients for ICA, IROAS, and the disbursement service using Spring's `RestClient`.
+- **Real external clients** — Implement live HTTP clients for ICA, IROAS using Spring's `RestClient`.
 - **Async disbursement** — Move disbursement to a background process; POST returns `PENDING` and callers poll `GET /{id}` for the final status.
 - **Multi-caller authentication** — Support multiple API keys or OAuth2 client credentials to distinguish callers in audit logs and enable key rotation.
-- **Observability** — Expose Spring Actuator health and metrics endpoints; wire into a monitoring stack.
-
+- **Implement DisbursementService** — Implement an API client to call the disbursement service instead of the current mock, including async response handling.
