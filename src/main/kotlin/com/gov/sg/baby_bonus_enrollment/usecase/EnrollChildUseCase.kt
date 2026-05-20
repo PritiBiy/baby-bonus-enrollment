@@ -3,6 +3,7 @@ package com.gov.sg.baby_bonus_enrollment.usecase
 import com.gov.sg.baby_bonus_enrollment.audit.AuditEvent
 import com.gov.sg.baby_bonus_enrollment.audit.AuditEventType
 import com.gov.sg.baby_bonus_enrollment.audit.AuditLogger
+import com.gov.sg.baby_bonus_enrollment.audit.AuditOutcome
 import com.gov.sg.baby_bonus_enrollment.domain.Nric
 import com.gov.sg.baby_bonus_enrollment.domain.disbursement.Disbursement
 import com.gov.sg.baby_bonus_enrollment.domain.disbursement.DisbursementEntityRepository
@@ -102,14 +103,33 @@ class EnrollChildUseCase(
         EnrollmentDto.from(enrollment, disbursement)
 
     private fun auditEnrollmentSubmitted(childNric: Nric, parentNric: Nric) =
-        auditLogger.info(AuditEvent(AuditEventType.ENROLLMENT_SUBMITTED, childNric, mapOf("parentNric" to parentNric)))
+        auditLogger.info(AuditEvent(
+            event = AuditEventType.ENROLLMENT_SUBMITTED,
+            nric = childNric,
+            outcome = AuditOutcome.SUCCESS,
+            extras = mapOf("parentNric" to parentNric)
+        ))
 
     private fun auditEligibilityPassed(childNric: Nric) =
-        auditLogger.info(AuditEvent(AuditEventType.ELIGIBILITY_PASSED, childNric))
+        auditLogger.info(AuditEvent(
+            event = AuditEventType.ELIGIBILITY_PASSED,
+            nric = childNric,
+            outcome = AuditOutcome.SUCCESS
+        ))
 
     private fun auditEligibilityFailed(childNric: Nric, reason: String) =
-        auditLogger.warn(AuditEvent(AuditEventType.ELIGIBILITY_FAILED, childNric, mapOf("reason" to reason)))
+        auditLogger.warn(AuditEvent(
+            event = AuditEventType.ELIGIBILITY_FAILED,
+            nric = childNric,
+            outcome = AuditOutcome.FAILURE,
+            extras = mapOf("reason" to reason)
+        ))
 
     private fun auditDisbursementInitiated(enrollment: Enrollment, amount: BigDecimal) =
-        auditLogger.info(AuditEvent(AuditEventType.DISBURSEMENT_INITIATED, Nric(enrollment.childNric), mapOf("enrollmentId" to enrollment.id, "amount" to amount)))
+        auditLogger.info(AuditEvent(
+            event = AuditEventType.DISBURSEMENT_INITIATED,
+            nric = Nric(enrollment.childNric),
+            outcome = AuditOutcome.SUCCESS,
+            extras = mapOf("enrollmentId" to enrollment.id, "amount" to amount)
+        ))
 }
