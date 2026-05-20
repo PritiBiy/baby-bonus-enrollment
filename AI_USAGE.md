@@ -11,13 +11,26 @@ This document describes how AI tools were used during the development of this se
 | Claude Code (Anthropic) | Planning, implementation, code review, and documentation |
 | GitHub Copilot | Inline code completion |
 
+### Context Given to CC
+
+These documents were authored by the user before implementation began and given to CC at the start of every session as the source of truth. CC was not allowed to invent behaviour that contradicted them.
+
+| Document | Purpose |
+|----------|---------|
+| `SCOPE.md` | What is in scope, deferred, and why — governs every feature decision |
+| `.claude/docs/api-contract.md` | Exact request/response shapes, status codes, and error messages |
+| `.claude/docs/domain-model.md` | Canonical domain entities and field types |
+| `CLAUDE.md` | Layer rules, architectural patterns, and Kotlin conventions |
+| `.claude/commands/write-tests.md` | User-authored slash command — enforces test-layer order before every feature |
+| `.claude/TODO.md` | Ordered task list — each task handed to CC in plan mode, one at a time |
+
 ---
 
 ## How CC Was Used
 
-Each feature was started with CC in **plan mode**: the task was provided, CC produced a step-by-step implementation plan, and the user reviewed and gave corrections before any code was written. Once the plan was approved, CC switched to **edit/accept mode** to implement; output was reviewed before committing.
+Each feature was driven from `TODO.md`: the next unchecked task was given to CC in **plan mode**, CC produced a step-by-step implementation plan, and the user reviewed and gave corrections before any code was written. Once the plan was approved, CC switched to **edit/accept mode** to implement; output was reviewed before committing.
 
-A `/write-tests` command was created as a Claude Code slash command (`.claude/commands/write-tests.md`) to enforce TDD discipline. It defines the test-layer order — write the integration test first and mark it `@Disabled`, then implement repository → use case → remove `@Disabled`. CC uses this as a skill automatically at the start of each feature.
+Before writing any test or feature code, CC was given the `/write-tests` command (user-authored) which enforces the test-layer order — integration test first (`@Disabled`), then repository → use case → enable. This kept every feature developed outside-in.
 
 `CLAUDE.md` was maintained throughout: whenever CC produced output that violated a design rule, the correction was written into `CLAUDE.md` or `write-tests.md` so the same mistake could not recur in future sessions.
 
