@@ -17,12 +17,12 @@ These documents were authored by the user before implementation began and given 
 
 | Document | Purpose |
 |----------|---------|
-| `SCOPE.md` | What is in scope, deferred, and why — governs every feature decision |
-| `.claude/docs/api-contract.md` | Exact request/response shapes, status codes, and error messages |
-| `.claude/docs/domain-model.md` | Canonical domain entities and field types |
-| `CLAUDE.md` | Layer rules, architectural patterns, and Kotlin conventions |
-| `.claude/commands/write-tests.md` | User-authored slash command — enforces test-layer order before every feature |
-| `.claude/TODO.md` | Ordered task list — each task handed to CC in plan mode, one at a time |
+| [SCOPE.md](SCOPE.md) | What is in scope, deferred, and why — governs every feature decision |
+| [api-contract.md](.claude/docs/api-contract.md) | Exact request/response shapes, status codes, and error messages |
+| [domain-model.md](.claude/docs/domain-model.md) | Canonical domain entities and field types |
+| [CLAUDE.md](CLAUDE.md) | Layer rules, architectural patterns, and Kotlin conventions |
+| [write-tests.md](.claude/commands/write-tests.md) | User-authored slash command — enforces test-layer order before every feature |
+| [TODO.md](.claude/TODO.md) | Ordered task list — each task handed to CC in plan mode, one at a time |
 
 ---
 

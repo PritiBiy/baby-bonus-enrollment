@@ -11,7 +11,7 @@ Parents apply to enrol their newborn child. The system checks eligibility agains
 
 | Command | File | Purpose |
 |---------|------|---------|
-| `/write-tests` | `.claude/commands/write-tests.md` | Enforces TDD layer order — integration test first (`@Disabled`), then repository → use case → enable |
+| `/write-tests` | [write-tests.md](.claude/commands/write-tests.md) | Enforces TDD layer order — integration test first (`@Disabled`), then repository → use case → enable |
 
 ---
 
