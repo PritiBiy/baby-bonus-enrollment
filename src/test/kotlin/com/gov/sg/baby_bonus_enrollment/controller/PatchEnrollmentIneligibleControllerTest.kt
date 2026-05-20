@@ -2,6 +2,7 @@ package com.gov.sg.baby_bonus_enrollment.controller
 
 import com.gov.sg.baby_bonus_enrollment.controller.response.EnrollmentResponse
 import com.gov.sg.baby_bonus_enrollment.controller.response.ErrorResponse
+import com.gov.sg.baby_bonus_enrollment.controller.response.MarkIneligibleEnrollmentResponse
 import com.gov.sg.baby_bonus_enrollment.domain.enrollment.EnrollmentStatus
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
@@ -27,10 +28,12 @@ class PatchEnrollmentIneligibleControllerTest : BaseControllerTest() {
                 .content("""{"reason": "Child citizenship data incorrect"}""")
         ).andExpect(status().isOk).andReturn()
 
-        val response = objectMapper.readValue<EnrollmentResponse>(result.response.contentAsString)
-        response.status shouldBe EnrollmentStatus.INELIGIBLE
+        val response = objectMapper.readValue<MarkIneligibleEnrollmentResponse>(result.response.contentAsString)
         response.id shouldBe created.id
         response.childNric shouldBe "T240****H"
+        response.parentNric shouldBe "S800****A"
+        response.status shouldBe EnrollmentStatus.INELIGIBLE
+        response.reason shouldBe "Child citizenship data incorrect"
     }
 
     @Test

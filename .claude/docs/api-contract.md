@@ -236,20 +236,12 @@ Ops function to manually override an enrollment to `INELIGIBLE` with a reason. U
   "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
   "childNric": "T240****A",
   "parentNric": "S800****A",
-  "relationship": "FATHER",
   "status": "INELIGIBLE",
-  "enrolledAt": "2024-08-01T10:00:00Z",
-  "disbursement": {
-    "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
-    "type": "CASH_GIFT",
-    "amount": 3000.00,
-    "status": "PROCESSED",
-    "processedAt": "2024-08-01T10:00:01Z"
-  }
+  "reason": "Child citizenship data incorrect in ICA at time of enrollment"
 }
 ```
 
-Note: disbursement is not reversed by this operation — that is a separate refund flow (deferred, out of scope).
+Only the fields relevant to the override are returned — no disbursement details. Disbursement reversal is a separate refund flow (deferred, out of scope).
 <br/>
 Future scope: Reason can be populated in dropdown to select some presets and allow to enter new one as needed. This will help to create dashboard by grouping error reason 
 

@@ -3,9 +3,11 @@ package com.gov.sg.baby_bonus_enrollment.controller
 import com.gov.sg.baby_bonus_enrollment.controller.request.EnrollmentRequest
 import com.gov.sg.baby_bonus_enrollment.controller.response.DisbursementResponse
 import com.gov.sg.baby_bonus_enrollment.controller.response.EnrollmentResponse
+import com.gov.sg.baby_bonus_enrollment.controller.response.MarkIneligibleEnrollmentResponse
 import com.gov.sg.baby_bonus_enrollment.domain.Nric
 import com.gov.sg.baby_bonus_enrollment.domain.enrollment.Relationship
 import com.gov.sg.baby_bonus_enrollment.controller.request.MarkIneligibleEnrollmentStatusRequest
+import com.gov.sg.baby_bonus_enrollment.domain.enrollment.Enrollment
 import com.gov.sg.baby_bonus_enrollment.usecase.EnrollChildUseCase
 import com.gov.sg.baby_bonus_enrollment.usecase.GetEnrollmentByIdUseCase
 import com.gov.sg.baby_bonus_enrollment.usecase.GetEnrollmentsByChildNricUseCase
@@ -69,7 +71,18 @@ class EnrollmentController(
     fun markIneligible(
         @PathVariable id: UUID,
         @Valid @RequestBody request: MarkIneligibleEnrollmentStatusRequest
-    ): EnrollmentResponse = markEnrollmentIneligibleUseCase.execute(id, request.reason).toResponse()
+    ): MarkIneligibleEnrollmentResponse {
+        val enrollment = markEnrollmentIneligibleUseCase.execute(id, request.reason)
+        return enrollment.toMarkIneligibleResponse()
+    }
+
+    private fun Enrollment.toMarkIneligibleResponse() = MarkIneligibleEnrollmentResponse(
+        id = id,
+        childNric = Nric(childNric).masked(),
+        parentNric = Nric(parentNric).masked(),
+        status = status,
+        reason = requireNotNull(reason)
+    )
 
     private fun EnrollmentDto.toResponse() = EnrollmentResponse(
         id = id,
