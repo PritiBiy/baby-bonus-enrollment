@@ -1,13 +1,14 @@
 package com.gov.sg.baby_bonus_enrollment.usecase
 
+import com.gov.sg.baby_bonus_enrollment.audit.AuditLogger
 import com.gov.sg.baby_bonus_enrollment.domain.enrollment.Enrollment
 import com.gov.sg.baby_bonus_enrollment.domain.enrollment.EnrollmentEntityRepository
 import com.gov.sg.baby_bonus_enrollment.domain.enrollment.EnrollmentStatus
 import com.gov.sg.baby_bonus_enrollment.domain.enrollment.Relationship
 import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.whenever
@@ -18,8 +19,14 @@ import java.util.UUID
 class MarkEnrollmentIneligibleUseCaseTest {
 
     @Mock private lateinit var enrollmentRepository: EnrollmentEntityRepository
+    @Mock private lateinit var auditLogger: AuditLogger
 
-    @InjectMocks private lateinit var useCase: MarkEnrollmentIneligibleUseCase
+    private lateinit var useCase: MarkEnrollmentIneligibleUseCase
+
+    @BeforeEach
+    fun setUp() {
+        useCase = MarkEnrollmentIneligibleUseCase(enrollmentRepository, auditLogger)
+    }
 
     @Test
     fun `marks enrollment ineligible and returns updated enrollment`() {
