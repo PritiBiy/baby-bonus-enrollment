@@ -123,9 +123,9 @@ Tasks are ordered. Start each with a failing integration test — build everythi
 - [x] Custom Audit events for structured logs 
 - [ ] Missing 401 tests — GetEnrollmentByIdControllerTest, GetEnrollmentsByChildNricControllerTest, PatchEnrollmentIneligibleControllerTest all lack
    tests for missing and invalid X-API-Key. PostEnrollmentControllerTest has them; the other three don't.
-- [ ]  DisbursementEntityRepositoryTest missing findByEnrollmentId 
+- [x]  DisbursementEntityRepositoryTest missing findByEnrollmentId 
 - [ ]  MarkEnrollmentIneligibleUseCaseTest doesn't assert NRIC masking
-- [ ] EnrollmentRequest should not allow blank relationship (currently only invalid value is tested, not missing/blank) — add `@NotBlank` and test for blank value case
+- [x] EnrollmentRequest should not allow blank relationship (currently only invalid value is tested, not missing/blank) — add `@NotBlank` and test for blank value case
 - [x] MarkEnrollmentIneligibleUseCase does not have audit
 - 
 
