@@ -86,16 +86,21 @@ class EnrollChildUseCaseTest {
 
         val result = useCase.execute(request)
 
-        result.childNric shouldBe "T240****A"
-        result.parentNric shouldBe "S800****A"
-        result.relationship shouldBe Relationship.FATHER
-        result.status shouldBe EnrollmentStatus.ENROLLED
-        result.enrolledAt shouldBe fixedInstant
-        result.disbursement shouldNotBe null
-        result.disbursement!!.type shouldBe DisbursementType.CASH_GIFT
-        result.disbursement.amount.compareTo(BigDecimal("3000.00")) shouldBe 0
-        result.disbursement.status shouldBe DisbursementStatus.PROCESSED
-        result.disbursement.processedAt shouldBe fixedInstant
+        with(result) {
+            childNric shouldBe "T240****A"
+            parentNric shouldBe "S800****A"
+            relationship shouldBe Relationship.FATHER
+            status shouldBe EnrollmentStatus.ENROLLED
+            enrolledAt shouldBe fixedInstant
+            disbursement shouldNotBe null
+
+            with(disbursement!!) {
+                type shouldBe DisbursementType.CASH_GIFT
+                amount.compareTo(BigDecimal("3000.00")) shouldBe 0
+                status shouldBe DisbursementStatus.PROCESSED
+                processedAt shouldBe fixedInstant
+            }
+        }
     }
 
     @Test
