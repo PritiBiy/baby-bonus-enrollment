@@ -98,21 +98,7 @@ class EnrollChildUseCase(
     }
 
     private fun toDto(enrollment: Enrollment, disbursement: Disbursement): EnrollmentDto =
-        EnrollmentDto(
-            id = enrollment.id,
-            childNric = Nric(enrollment.childNric).masked(),
-            parentNric = Nric(enrollment.parentNric).masked(),
-            relationship = enrollment.relationship,
-            status = enrollment.status,
-            enrolledAt = enrollment.enrolledAt,
-            disbursement = DisbursementDto(
-                id = disbursement.id,
-                type = disbursement.type,
-                amount = disbursement.amount,
-                status = disbursement.status,
-                processedAt = disbursement.processedAt
-            )
-        )
+        EnrollmentDto.from(enrollment, disbursement)
 
     private fun auditEnrollmentSubmitted(childNric: Nric, parentNric: Nric) =
         auditLogger.info("ENROLLMENT_SUBMITTED childNric=$childNric parentNric=$parentNric")

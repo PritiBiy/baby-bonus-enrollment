@@ -113,6 +113,11 @@ Tasks are ordered. Start each with a failing integration test — build everythi
 - [x] For Disbursement 3000, create constant and give meaningful name.
 - [ ] checkEligibility can audit instead of try catch block, its redundant 
 - [ ] Builders for test data 
-- [ ]  
+- [ ] Use structured logs for audit events 
+- [ ] Entity should be immutable, better to have update instead of using save. 
+- [ ] Update AI_USGAE.md with correct table, as it was created before.
+- [x] toDto is repeated across use cases, can be moved to a common place.
+- [ ] Custom validation for relationship field 
+- [ ]
 
 ---
