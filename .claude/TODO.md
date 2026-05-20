@@ -115,8 +115,8 @@ Tasks are ordered. Start each with a failing integration test — build everythi
 - [ ] Builders for test data 
 - [x] Use structured logs for audit events 
 - [ ] Entity should be immutable, better to have update instead of using save. 
-- [ ] Update AI_USGAE.md with correct table, as it was created before.
-- [ ] Highlight command created for write test. 
+- [x] Update AI_USGAE.md with correct table, as it was created before.
+- [x] Highlight command created for write test. 
 - [x] toDto is repeated across use cases, can be moved to a common place.
 - [ ] Custom validation for relationship field 
 - [x] EnrollmentEntity.createdAt resets on every update

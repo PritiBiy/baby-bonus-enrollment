@@ -8,7 +8,9 @@
       "Bash(wait %1)",
       "Bash(./gradlew test *)",
       "Bash(./gradlew compileKotlin compileTestKotlin)",
-      "Bash(./gradlew compileTestKotlin)"
+      "Bash(./gradlew compileTestKotlin)",
+      "Bash(git add *)",
+      "Bash(git commit *)"
     ]
   }
 }
