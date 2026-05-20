@@ -5,11 +5,8 @@ import com.gov.sg.baby_bonus_enrollment.domain.disbursement.Disbursement
 import com.gov.sg.baby_bonus_enrollment.domain.disbursement.DisbursementEntityRepository
 import com.gov.sg.baby_bonus_enrollment.domain.enrollment.Enrollment
 import com.gov.sg.baby_bonus_enrollment.domain.enrollment.EnrollmentEntityRepository
-import com.gov.sg.baby_bonus_enrollment.domain.enrollment.EnrollmentStatus
 import com.gov.sg.baby_bonus_enrollment.usecase.dto.DisbursementDto
 import com.gov.sg.baby_bonus_enrollment.usecase.dto.EnrollmentDto
-import com.gov.sg.baby_bonus_enrollment.usecase.exception.EnrollmentAlreadyIneligibleException
-import com.gov.sg.baby_bonus_enrollment.usecase.exception.NotFoundException
 import org.springframework.stereotype.Component
 import java.util.UUID
 
@@ -19,13 +16,7 @@ class MarkEnrollmentIneligibleUseCase(
     private val disbursementRepository: DisbursementEntityRepository
 ) {
     fun execute(id: UUID, reason: String): EnrollmentDto {
-        val enrollment = enrollmentRepository.findById(id)
-            ?: throw NotFoundException("Enrollment not found")
-
-        if (enrollment.status == EnrollmentStatus.INELIGIBLE)
-            throw EnrollmentAlreadyIneligibleException("Enrollment is already ineligible")
-
-        val updated = enrollmentRepository.save(enrollment.copy(status = EnrollmentStatus.INELIGIBLE, reason = reason))
+        val updated = enrollmentRepository.updateStatus(id, reason)
         val disbursement = disbursementRepository.findByEnrollmentId(id)
         return toDto(updated, disbursement)
     }
