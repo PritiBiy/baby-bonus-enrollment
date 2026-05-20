@@ -1,4 +1,4 @@
-### Baby Enrollment Service
+# Baby Bonus Enrollment Service
 
 The Baby Bonus Scheme supports parents of newborn Singapore Citizens with two financial benefits:
 
@@ -6,6 +6,26 @@ The Baby Bonus Scheme supports parents of newborn Singapore Citizens with two fi
 - A **Child Development Account (CDA)** — a ring-fenced savings account seeded by government top-ups, usable only at approved merchants
 
 Parents apply to enrol their newborn child. The system checks eligibility against government sources of truth, creates an enrollment record, and initiates disbursement.
+
+### Project Documents
+
+| Document | Purpose |
+|----------|---------|
+| `SCOPE.md` | Scoping decisions — what is built, deferred, and why |
+| `data-sensitivity.md` | How NRIC and financial data is protected at rest, in transit, and in logs |
+| `AI_USAGE.md` | How AI tools were used, where output was corrected, and where it was accepted |
+| `.claude/docs/api-contract.md` | Full API contract — request/response shapes, status codes, error messages |
+| `.claude/docs/domain-model.md` | Canonical domain entities and field types |
+| `CLAUDE.md` | Architectural rules and conventions given to Claude Code as context |
+| `.claude/TODO.md` | Ordered task list used to drive development session by session |
+
+### Claude Code Commands
+
+| Command | File | Purpose |
+|---------|------|---------|
+| `/write-tests` | `.claude/commands/write-tests.md` | Enforces TDD layer order — integration test first (`@Disabled`), then repository → use case → enable |
+
+---
 
 ### Prerequisites
 
