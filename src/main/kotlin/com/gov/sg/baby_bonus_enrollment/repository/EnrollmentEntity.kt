@@ -33,7 +33,7 @@ class EnrollmentEntity(
     @Column(name = "enrolled_at")
     var enrolledAt: Instant? = null,
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: Instant = Instant.now()
 ) {
     fun toDomain(): Enrollment = Enrollment(
