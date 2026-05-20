@@ -111,13 +111,22 @@ Tasks are ordered. Start each with a failing integration test — build everythi
 
 - [ ] Create precommit hook check if cc has built in hooks for this. 
 - [x] For Disbursement 3000, create constant and give meaningful name.
-- [ ] checkEligibility can audit instead of try catch block, its redundant 
+- [x] checkEligibility can audit instead of try catch block, its redundant 
 - [ ] Builders for test data 
-- [ ] Use structured logs for audit events 
+- [x] Use structured logs for audit events 
 - [ ] Entity should be immutable, better to have update instead of using save. 
 - [ ] Update AI_USGAE.md with correct table, as it was created before.
+- [ ] Highlight command created for write test. 
 - [x] toDto is repeated across use cases, can be moved to a common place.
 - [ ] Custom validation for relationship field 
 - [x] EnrollmentEntity.createdAt resets on every update
+- [x] Custom Audit events for structured logs 
+- [ ] Missing 401 tests — GetEnrollmentByIdControllerTest, GetEnrollmentsByChildNricControllerTest, PatchEnrollmentIneligibleControllerTest all lack
+   tests for missing and invalid X-API-Key. PostEnrollmentControllerTest has them; the other three don't.
+- [ ]  DisbursementEntityRepositoryTest missing findByEnrollmentId 
+- [ ]  MarkEnrollmentIneligibleUseCaseTest doesn't assert NRIC masking
+- [ ] EnrollmentRequest should not allow blank relationship (currently only invalid value is tested, not missing/blank) — add `@NotBlank` and test for blank value case
+- [x] MarkEnrollmentIneligibleUseCase does not have audit
+- 
 
 ---
