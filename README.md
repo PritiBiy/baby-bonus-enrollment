@@ -32,9 +32,9 @@ Once running:
 
 | | URL |
 |-|-----|
-| API base | `http://localhost:8080/api/v1` |
-| Swagger UI | `http://localhost:8080/swagger-ui.html` |
-| H2 console | `http://localhost:8080/h2-console` |
+| API base | [http://localhost:8080/api/v1](http://localhost:8080/api/v1) |
+| Swagger UI | [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html) |
+| H2 console | [http://localhost:8080/h2-console](http://localhost:8080/h2-console) |
 
 ### Running with Docker
 
@@ -80,13 +80,13 @@ Tests use a fixed key (`test-api-key`) configured in `src/test/resources/applica
 
 | Document | Purpose |
 |----------|---------|
-| `SCOPE.md` | Scoping decisions — what is built, deferred, and why |
-| `data-sensitivity.md` | How NRIC and financial data is protected at rest, in transit, and in logs |
-| `AI_USAGE.md` | How AI tools were used, where output was corrected, and where it was accepted |
-| `.claude/docs/api-contract.md` | Full API contract — request/response shapes, status codes, error messages |
-| `.claude/docs/domain-model.md` | Canonical domain entities and field types |
-| `CLAUDE.md` | Architectural rules and conventions given to Claude Code as context |
-| `.claude/TODO.md` | Ordered task list used to drive development session by session |
+| [SCOPE.md](SCOPE.md) | Scoping decisions — what is built, deferred, and why |
+| [data-sensitivity.md](data-sensitivity.md) | How NRIC and financial data is protected at rest, in transit, and in logs |
+| [AI_USAGE.md](AI_USAGE.md) | How AI tools were used, where output was corrected, and where it was accepted |
+| [api-contract.md](.claude/docs/api-contract.md) | Full API contract — request/response shapes, status codes, error messages |
+| [domain-model.md](.claude/docs/domain-model.md) | Canonical domain entities and field types |
+| [CLAUDE.md](CLAUDE.md) | Architectural rules and conventions given to Claude Code as context |
+| [TODO.md](.claude/TODO.md) | Ordered task list used to drive development session by session |
 
 ### What I would do next
 
