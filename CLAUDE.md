@@ -6,13 +6,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Before writing any code, read these documents in order:
 
-| Document | Purpose |
-|----------|---------|
-| `SCOPE.md` | What is in scope, deferred, and why — governs every feature decision |
-| `.claude/docs/domain-model.md` | Canonical domain entities and field types |
-| `.claude/docs/api-contract.md` | Exact request/response shapes, status codes, and error messages |
-| `data-sensitivity.md` | NRIC masking rules and data handling requirements |
-| `mock-data/` | ICA and IROAS stub data loaded at startup |
+| Document | Purpose                                                                                    |
+|----------|--------------------------------------------------------------------------------------------|
+| `SCOPE.md` | What is in scope, deferred, and why — governs every feature decision                       |
+| `.claude/docs/domain-model.md` | Canonical domain entities and field types                                                  |
+| `.claude/docs/api-contract.md` | Exact request/response shapes, status codes, and error messages                            |
+| `data-sensitivity.md` | NRIC masking rules and data handling requirements                                          |
+| `mock-data/` | ICA and IROAS stub data loaded at startup refer                                            |
+| `.claude/TODO.md` | Active task list — check here before starting work to understand what is planned or in progress |
 
 Do not invent behaviour that contradicts these documents. If a contract is ambiguous, ask before assuming.
 
@@ -52,51 +53,6 @@ API_KEY=secret ./gradlew bootRun
 The H2 console is available at `http://localhost:8080/h2-console` when the app is running.
 
 After **any** code change, run `./gradlew build`. Only say **"done"** when the build is green.
-
----
-
-## Package structure
-
-```
-com.gov.sg.baby_bonus_enrollment
-├── domain/
-│   ├── Nric.kt                          ← @JvmInline value class; toString() always masked
-│   ├── enrollment/
-│   │   ├── Enrollment.kt                ← pure data class, no JPA
-│   │   ├── *EntityRepository.kt         ← repository interface (domain contract)
-│   │   └── (enums: Citizenship, Relationship, EnrollmentStatus)
-│   └── disbursement/
-│       ├── Disbursement.kt              ← pure data class, no JPA
-│       ├── *EntityRepository.kt         ← repository interface (domain contract)
-│       └── (enums: DisbursementType, DisbursementStatus)
-│
-├── repository/
-│   ├── *Entity.kt                       ← JPA entity
-│   ├── *JpaRepository.kt                ← Spring Data JPA interface (internal)
-│   └── *EntityRepositoryImpl.kt         ← implements domain contract
-│
-├── usecase/
-│   ├── *UseCase.kt                      ← one class per use case, fun execute(...)
-│   ├── dto/                             ← input/output DTOs owned by use case layer
-│   └── exception/                       ← domain exceptions (EligibilityException, NotFoundException, etc.)
-│
-├── controller/
-│   ├── *Controller.kt
-│   ├── request/                         ← HTTP request shapes; no domain imports
-│   ├── response/                        ← HTTP response shapes
-│   └── exception/GlobalExceptionHandler.kt
-│
-├── external/
-│   ├── ica/                             ← IcaClient interface + MockIcaClient + ChildRecord
-│   ├── iroas/                           ← IroasClient interface + MockIroasClient + ParentRecord
-│   └── disbursement/                    ← DisbursementClient interface + MockDisbursementClient
-│
-├── security/
-│   └── ApiKeyFilter.kt                  ← OncePerRequestFilter; reads api.key from properties
-│
-└── audit/
-    └── AuditLogger.kt                   ← thin SLF4J wrapper; called from use cases only
-```
 
 ---
 
@@ -174,7 +130,6 @@ All controller tests extend `BaseControllerTest`, which provides:
 - `api.key` property is sourced from `API_KEY` env var — startup fails if not set
 
 ### Audit
-- `AuditLogger` is called from use cases only — never from controller or repository
 - Log levels: `INFO` for normal flow, `WARN` for business rejections (eligibility fail, duplicate), `ERROR` for unexpected failures
 - `ApiKeyFilter` puts `caller=api-key` into MDC so every log line includes the caller identity
 
@@ -209,6 +164,7 @@ Each commit should represent one coherent step. A reader should be able to follo
 - Use `sealed class` / `enum class` for status types
 - Prefer immutability: `val` over `var`, immutable collections
 - Null safety is a feature — model optionality explicitly with `?`; handle with `?.let`, `?:`, or `when`; do not use `!!`
+- Use with block for multiple operations on the same object; use `apply` for configuring objects in one expression
 
 ### Method ordering within a class
 
@@ -247,3 +203,9 @@ Fail fast — return the first failing condition as a `422` with the exact messa
 ## Testing
 
 All testing conventions, patterns, and layer-specific rules are in `.claude/commands/write-tests.md`. Read that file before writing any test.
+
+### Mock data paths
+
+- `src/main/resources/mock-data/ica_children.json` — loaded by `MockIcaClient` at startup
+- `src/main/resources/mock-data/iroas_parents.json` — loaded by `MockIroasClient` at startup
+- `src/test/resources/mock-data/` — test-only fixtures for stub client unit tests
